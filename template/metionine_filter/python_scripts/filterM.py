@@ -1,6 +1,8 @@
 import os
 import shutil
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 def same_M_position_frame_ref(frame, ref_seq):
     """
@@ -46,11 +48,15 @@ def buscar_posM_anterior(frame, posM):
 def limpiar_secuencias(records, startPos):
     """
     Limpia las secuencias eliminando los caracteres '-' y ajustando el inicio según startPos.
+    Devuelve una lista de objetos SeqRecord.
     """
     secuencias_limpias = []
     for record in records:
+        # Elimina los caracteres '-' y ajusta el inicio
         secuencia_limpia = str(record.seq[startPos:]).replace('-', '')
-        secuencias_limpias.append(secuencia_limpia)
+        # Crea un nuevo objeto SeqRecord con la secuencia limpia
+        secuencia_limpia_record = SeqRecord(Seq(secuencia_limpia), id=record.id, description=record.description)
+        secuencias_limpias.append(secuencia_limpia_record)
     return secuencias_limpias
 
 def comprobar_secuencia(input_directory, multiframe_directory, limpios_directory, perfectos_directory,
