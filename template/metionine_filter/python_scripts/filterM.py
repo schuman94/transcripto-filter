@@ -99,7 +99,7 @@ def comprobar_secuencia(input_directory, multiframe_directory, limpios_directory
                     shutil.copy(file_path, os.path.join(revision_manual_directory, filename))
 
 if __name__ == "__main__":
-    input_directory = '../mafft/Alineamientos'
+    input_directory = '../Alineamientos_mafft'
     multiframe_directory = '../resultados/Alineamientos_Multiframe'
     limpios_directory = '../resultados/Alineamientos_Limpios'
     perfectos_directory = '../resultados/Alineamientos_Perfectos'
