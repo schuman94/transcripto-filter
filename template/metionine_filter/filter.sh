@@ -19,9 +19,7 @@ echo "Ficheros fasta generados"
 cd ../mafft
 module load MAFFT
 
-mkdir -p ./Alineamientos_mafft
-
-for f in ./Alineamientos/*.fasta
+for f in ./Alineamientos_pre_mafft/*.fasta
 do
     base=$(basename $f)
     mafft --anysymbol $f > "./Alineamientos_mafft/${base%.fasta}".mafft.fasta
@@ -35,5 +33,9 @@ done
 
 echo "MAFFT finished"
 
+cd ../python_scripts
+python3 filterM.py
+
+echo "Ficheros clasificados"
 
 echo "Ejecución finalizada en: $(date)"

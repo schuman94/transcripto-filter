@@ -63,7 +63,7 @@ def generar_fastas(diccionario, directorio_fasta_original, directorio_salida_Ali
 # Rutas
 ruta_informe= '../../curation_filter/Alineamientos_filtrados/informe.tsv'
 directorio_fasta_original = '../../alignments/Alineamientos'
-directorio_salida_Alineamientos_pre_mafft = '../Alineamientos_mafft'
+directorio_salida_Alineamientos_pre_mafft = '../mafft/Alineamientos_pre_mafft'
 
 # Ejecucion
 diccionario_resultado = procesar_informe(ruta_informe)
