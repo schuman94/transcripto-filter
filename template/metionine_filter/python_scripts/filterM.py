@@ -48,16 +48,38 @@ def buscar_posM_anterior(frame, posM):
 def limpiar_secuencias(records, startPos):
     """
     Limpia las secuencias eliminando los caracteres '-' y ajustando el inicio según startPos.
+    Además, cada secuencia terminará en el siguiente codón de parada '*'.
     Devuelve una lista de objetos SeqRecord.
     """
     secuencias_limpias = []
     for record in records:
-        # Elimina los caracteres '-' y ajusta el inicio
-        secuencia_limpia = str(record.seq[startPos:]).replace('-', '')
+        # Encuentra la posición del siguiente '*' después de startPos
+        fin = record.seq.find('*', startPos)
+        if fin == -1:  # Si no se encuentra '*', usa el final de la secuencia
+            fin = len(record.seq)
+
+        # Extrae la subsecuencia desde startPos hasta fin (excluyendo '*') y elimina los '-'
+        secuencia_limpia = str(record.seq[startPos:fin]).replace('-', '')
+
         # Crea un nuevo objeto SeqRecord con la secuencia limpia
         secuencia_limpia_record = SeqRecord(Seq(secuencia_limpia), id=record.id, description=record.description)
         secuencias_limpias.append(secuencia_limpia_record)
+
     return secuencias_limpias
+
+
+def escribir_fasta_secuencias_limpias(archivo_destino, secuencias):
+    """
+    Escribe las secuencias en un archivo FASTA con cada secuencia en una sola línea.
+
+    Args:
+    archivo_destino (str): Ruta al archivo FASTA de destino.
+    secuencias (list of SeqRecord): Lista de objetos SeqRecord para escribir en el archivo.
+    """
+    with open(archivo_destino, "w") as archivo:
+        for secuencia in secuencias:
+            archivo.write(f">{secuencia.id}\n")
+            archivo.write(str(secuencia.seq) + "\n")
 
 def comprobar_secuencia(input_directory, multiframe_directory, limpios_directory, perfectos_directory,
                         metionina_previa_directory, revision_manual_directory):
@@ -95,7 +117,7 @@ def comprobar_secuencia(input_directory, multiframe_directory, limpios_directory
                         secuencias_limpias = limpiar_secuencias(records, posM)
                         # Crear un nuevo archivo en Alineamientos_Limpios:
                         nuevo_archivo = os.path.join(limpios_directory, filename)
-                        SeqIO.write(secuencias_limpias, nuevo_archivo, "fasta")
+                        escribir_fasta_secuencias_limpias(nuevo_archivo, secuencias_limpias)
                         break  # Terminamos el bucle de lectura de los ref_seq
                     else: # existe PosM_anterior
                         # Enviamos una copia del fichero a la carpeta Alineamientos_M_previa:

@@ -35,6 +35,7 @@ echo "MAFFT finished"
 
 cd ../python_scripts
 python3 filterM.py
+python3 summary.py
 
 echo "Ficheros clasificados"
 
