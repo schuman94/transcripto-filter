@@ -21,9 +21,6 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 7. **Extracción de Alineamientos**: Extrae los alineamientos relevantes.
 8. **Filtrado de Alineamientos**: Filtra los alineamientos para obtener los más relevantes.
 
-## Contribuciones
-Las contribuciones a este proyecto son bienvenidas. Por favor, lee las guías de contribución para más información.
-
 ## Licencia
 Este proyecto se distribuye bajo la licencia GPL-3.0
 
