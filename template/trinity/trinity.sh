@@ -11,7 +11,7 @@ P2=$2
 echo "Iniciando el script en: $(date)"
 
 module load Trinity
-ulimit -s unlimited
+ulimit unlimited
 Trinity --trimmomatic --seqType fq --left $P1 --right $P2 --max_memory 200G --CPU 40 --no_version_check
 
 echo "Ejecucion finalizada en: $(date)"

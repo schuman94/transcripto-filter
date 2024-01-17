@@ -12,7 +12,7 @@ echo "Iniciando el script en: $(date)"
 mkdir -p ./output
 
 module load FastQC/0.11.9-Java-11
-ulimit -s unlimited
+ulimit unlimited
 fastqc $P1 $P2 -o ./output/
 
 echo "Ejecucion finalizada en: $(date)"

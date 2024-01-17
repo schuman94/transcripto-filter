@@ -16,7 +16,7 @@ OUT=./blastx_out.csv
 echo "Iniciando el script en $(date)"
 
 module load BLAST+/2.13.0-gompi-2022a
-ulimit -s unlimited
+ulimit unlimited
 blastx -query $QUERY -db $DB -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
 
 echo "Ejecucion finalizada en $(date)"
