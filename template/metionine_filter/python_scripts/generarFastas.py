@@ -16,15 +16,37 @@ def procesar_informe(ruta_informe):
         seq_file = fila['Seq_file']
         frame_id = fila['Frame_ID']
         ref_id = fila['Ref_ID']
+        vector_alineamiento = fila['Vector_alineamiento']
+
+        posicion_subcadena_alineada = obtener_posicion_subcadena_alineada(vector_alineamiento)
+        # Lista con el identificador del frame y la posicion de su subcadena alineada
+        par_frame_subcadena = (frame_id, posicion_subcadena_alineada)
 
         # Añadir al diccionario
         if seq_file not in diccionario:
-            diccionario[seq_file] = {'frame': set(), 'ref': set()}
+            diccionario[seq_file] = {'frame': set(),
+                                     'ref': set()}
 
-        diccionario[seq_file]['frame'].add(frame_id)
+        diccionario[seq_file]['frame'].add(par_frame_subcadena)
         diccionario[seq_file]['ref'].add(ref_id)
 
     return diccionario
+
+def obtener_posicion_subcadena_alineada(vector_alineamiento):
+    # Dividir la cadena en subcadenas por los asteriscos
+    subcadenas = vector_alineamiento.split('*')
+
+    # Diccionario para almacenar la cuenta de "1" para cada subcadena
+    cuenta_1s = {}
+
+    # Recorrer cada subcadena y contar los "1"
+    for i, subcadena in enumerate(subcadenas):
+        cuenta_1s[i] = subcadena.count('1')
+
+    # Encontrar la subcadena con la mayor cantidad de "1"
+    subcadena_max_1s = max(cuenta_1s, key=cuenta_1s.get)
+
+    return subcadena_max_1s
 
 def obtener_secuencia(identificador, directorio_fasta_original):
     for archivo in os.listdir(directorio_fasta_original):
@@ -43,6 +65,10 @@ def obtener_secuencia(identificador, directorio_fasta_original):
                     return secuencia
     return None
 
+def trim_seq(secuencia, posicion):
+    subcadenas = secuencia.split('*')
+    return subcadenas[posicion]
+
 def generar_fastas(diccionario, directorio_fasta_original, directorio_salida_Alineamientos_pre_mafft):
     if not os.path.exists(directorio_salida_Alineamientos_pre_mafft):
         os.makedirs(directorio_salida_Alineamientos_pre_mafft)
@@ -50,8 +76,12 @@ def generar_fastas(diccionario, directorio_fasta_original, directorio_salida_Ali
     for seq_file, contenido in diccionario.items():
         archivo_salida = os.path.join(directorio_salida_Alineamientos_pre_mafft, f"seq_{seq_file}.fasta")
         with open(archivo_salida, 'w') as salida:
-            for frame_id in contenido['frame']:
+            for par_frame in contenido['frame']:
+                frame_id = par_frame[0]
+                posicion_subcadena = par_frame[1]
+
                 secuencia_frame = obtener_secuencia(frame_id, directorio_fasta_original)
+                secuencia_frame = trim_seq(secuencia_frame,posicion_subcadena)
                 if secuencia_frame:
                     salida.write(f">{frame_id}\n{secuencia_frame}\n")
 
