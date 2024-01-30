@@ -53,9 +53,9 @@ def limpiar_secuencias(records, startPos):
     """
     secuencias_limpias = []
     for record in records:
-        # Encuentra la posición del siguiente '*' después de startPos
+        # Encuentra la posición del siguiente '*' después de startPos. No debería haber.
         fin = record.seq.find('*', startPos)
-        if fin == -1:  # Si no se encuentra '*', usa el final de la secuencia
+        if fin == -1:  # Al no encontrar '*', usa el final de la secuencia
             fin = len(record.seq)
 
         # Extrae la subsecuencia desde startPos hasta fin (excluyendo '*') y elimina los '-'
