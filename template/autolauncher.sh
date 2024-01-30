@@ -45,7 +45,7 @@ cd ..
 
 # BLASTX
 cd ./blastx
-launch_job blast.sh "$DB" --dependency=afterok:$JOB
+launch_job blastx.sh "$DB" --dependency=afterok:$JOB
 cd ..
 
 # ALIGNMENTS
