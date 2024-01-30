@@ -16,11 +16,12 @@ is_number() {
     [[ $1 =~ ^[0-9]+$ ]]
 }
 
-# Lanzar los trabajos y verificar que se obtenga un ID de trabajo válido
+# Lanzar los trabajos y devolver el ID de trabajo válido
 launch_job() {
-    JOB=$(sbatch "$@" | awk '{print $4}')
-    if is_number $JOB; then
-        echo "Job ID: $JOB"
+    local JOB_ID=$(sbatch "$@" | awk '{print $4}')
+    if is_number $JOB_ID; then
+        echo "Job ID: $JOB_ID"
+        echo $JOB_ID
     else
         echo "Error: no se pudo obtener el ID del trabajo."
         exit 1
@@ -29,38 +30,37 @@ launch_job() {
 
 # FASTQC
 cd ./fastqc
-launch_job fastqc.sh "$READ1" "$READ2"
+JOB_FASTQC=$(launch_job fastqc.sh "$READ1" "$READ2")
 cd ..
 
 # TRINITY
 cd ./trinity
-launch_job trinity.sh "$READ1" "$READ2" --dependency=afterok:$JOB
+JOB_TRINITY=$(launch_job trinity.sh "$READ1" "$READ2" --dependency=afterok:$JOB_FASTQC)
 cd ..
 
 # BUSCO
 cd ./busco
 TRINITY_FASTA=../trinity/trinity_out_dir.Trinity.fasta
-launch_job busco.sh "TRINITY_FASTA" --dependency=afterok:$JOB
+JOB_BUSCO=$(launch_job busco.sh "$TRINITY_FASTA" --dependency=afterok:$JOB_TRINITY)
 cd ..
 
 # BLASTX
 cd ./blastx
-launch_job blastx.sh "$DB" --dependency=afterok:$JOB
+JOB_BLASTX=$(launch_job blastx.sh "$DB" --dependency=afterok:$JOB_BUSCO)
 cd ..
 
 # ALIGNMENTS
 cd ./alignments
 BLAST_CSV=../blastx/blastx_out.csv
-TRINITY_FASTA=../trinity/trinity_out_dir.Trinity.fasta
-launch_job alignments.sh "$BLAST_CSV" "$TRINITY_FASTA" "$DB" --dependency=afterok:$JOB
+JOB_ALIGNMENTS=$(launch_job alignments.sh "$BLAST_CSV" "$TRINITY_FASTA" "$DB" --dependency=afterok:$JOB_BLASTX)
 cd ..
 
 # CURATION FILTER
 cd ./curation_filter
-launch_job filter.sh --dependency=afterok:$JOB
+JOB_CUR_FILTER=$(launch_job filter.sh --dependency=afterok:$JOB_ALIGNMENTS)
 cd ..
 
 # METIONINE FILTER
 cd ./metionine_filter
-launch_job filter.sh --dependency=afterok:$JOB
+JOB_MET_FILTER=$(launch_job filter.sh --dependency=afterok:$JOB_CUR_FILTER)
 cd ..
