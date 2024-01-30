@@ -29,37 +29,38 @@ launch_job() {
 
 # FASTQC
 cd ./fastqc
-launch_job --export=ALL,READ1="$READ1",READ2="$READ2" fastqc.sh
+launch_job fastqc.sh "$READ1" "$READ2"
 cd ..
 
 # TRINITY
 cd ./trinity
-launch_job --dependency=afterok:$JOB --export=ALL,READ1="$READ1",READ2="$READ2" trinity.sh
+launch_job trinity.sh "$READ1" "$READ2" --dependency=afterok:$JOB
 cd ..
 
 # BUSCO
 cd ./busco
-launch_job --dependency=afterok:$JOB busco.sh
+TRINITY_FASTA=../trinity/trinity_out_dir.Trinity.fasta
+launch_job busco.sh "TRINITY_FASTA" --dependency=afterok:$JOB
 cd ..
 
 # BLASTX
 cd ./blastx
-launch_job --dependency=afterok:$JOB --export=ALL,DB="$DB" blastx.sh
+launch_job blast.sh "$DB" --dependency=afterok:$JOB
 cd ..
 
 # ALIGNMENTS
 cd ./alignments
 BLAST_CSV=../blastx/blastx_out.csv
 TRINITY_FASTA=../trinity/trinity_out_dir.Trinity.fasta
-launch_job --dependency=afterok:$JOB --export=ALL,BLAST_CSV="$BLAST_CSV",TRINITY_FASTA="$TRINITY_FASTA",DB="$DB" alignments.sh
+launch_job alignments.sh "$BLAST_CSV" "$TRINITY_FASTA" "$DB" --dependency=afterok:$JOB
 cd ..
 
 # CURATION FILTER
 cd ./curation_filter
-launch_job --dependency=afterok:$JOB filter.sh
+launch_job filter.sh --dependency=afterok:$JOB
 cd ..
 
 # METIONINE FILTER
 cd ./metionine_filter
-launch_job --dependency=afterok:$JOB filter.sh
+launch_job filter.sh --dependency=afterok:$JOB
 cd ..
