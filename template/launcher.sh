@@ -6,90 +6,44 @@
 #SBATCH --mem=200G
 #SBATCH --reservation=u49047421_14
 
-# Inicializar variables
-READ1=""
-READ2=""
-DB=""
-TRINITY_FASTA=""
 
-# Procesar argumentos
-while [[ $# -gt 0 ]]; do
-    key="$1"
+# Asignar los argumentos a variables
+READ1=$(realpath $1)
+READ2=$(realpath $2)
+DB=$(realpath $3)
 
-    case $key in
-        --r1)
-            READ1=$(realpath "$2")
-            shift # Pasar al siguiente argumento
-            ;;
-        --r2)
-            READ2=$(realpath "$2")
-            shift
-            ;;
-        --db)
-            DB=$(realpath "$2")
-            shift
-            ;;
-        --trinity)
-            TRINITY_FASTA=$(realpath "$2")
-            shift
-            ;;
-        *)
-            # Argumento desconocido
-            echo "Argumento no reconocido: $key"
-            exit 1
-    esac
-    shift # Pasar al siguiente argumento
-done
 
-# Verificar la presencia del argumento obligatorio --db
-if [[ -z $DB ]]; then
-    echo "El argumento --db es obligatorio."
-    exit 1
-fi
+# FASTQC
+cd ./fastqc
 
-# Comenzar desde BUSCO si se proporciona --trinity
-if [[ -n $TRINITY_FASTA ]]; then
-    # Saltar las secciones FASTQC y TRINITY
-    echo "Saltando FASTQC y TRINITY, comenzando desde BUSCO"
+echo "Iniciando el fastqc en: $(date)"
 
-else
-    # Verificar la presencia de --r1 y --r2
-    if [[ -z $READ1 ]] || [[ -z $READ2 ]]; then
-        echo "Los argumentos --r1 y --r2 son obligatorios si no se proporciona --trinity."
-        exit 1
-    fi
+mkdir -p ./output
 
-    # FASTQC
-    cd ./fastqc
+module load FastQC/0.11.9-Java-11
+fastqc $READ1 $READ2 -o ./output/
 
-    echo "Iniciando el fastqc en: $(date)"
+echo "Ejecucion de fastqc finalizada en: $(date)"
+cd ..
 
-    mkdir -p ./output
 
-    module load FastQC/0.11.9-Java-11
-    fastqc $READ1 $READ2 -o ./output/
+# TRINITY
+cd ./trinity
 
-    echo "Ejecucion de fastqc finalizada en: $(date)"
-    cd ..
+echo "Iniciando trinity en: $(date)"
 
-    # TRINITY
-    cd ./trinity
+module load Trinity
+ulimit unlimited
+Trinity --trimmomatic --seqType fq --left $READ1 --right $READ2 --max_memory 200G --CPU 40 --no_version_check
 
-    echo "Iniciando trinity en: $(date)"
+echo "Ejecucion de trinity finalizada en: $(date)"
 
-    module load Trinity
-    ulimit unlimited
-    Trinity --trimmomatic --seqType fq --left $READ1 --right $READ2 --max_memory 200G --CPU 40 --no_version_check
+TRINITY_FASTA=./trinity_out_dir.Trinity.fasta
+TRINITY_FASTA=$(realpath $TRINITY_FASTA)
+cd ..
 
-    echo "Ejecucion de trinity finalizada en: $(date)"
+sleep 5
 
-    TRINITY_FASTA=./trinity_out_dir.Trinity.fasta
-    TRINITY_FASTA=$(realpath $TRINITY_FASTA)
-    cd ..
-
-    sleep 5
-
-fi
 
 # BUSCO
 cd ./busco
