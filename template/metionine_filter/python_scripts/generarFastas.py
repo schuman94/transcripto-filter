@@ -88,6 +88,7 @@ def generar_fastas(diccionario, directorio_fasta_original, directorio_salida_Ali
             for ref_id in contenido['ref']:
                 secuencia_ref = obtener_secuencia(ref_id, directorio_fasta_original)
                 if secuencia_ref:
+                    # TODO: AQUI ES INTERESANTE OBTENER EL IDENTIFICADOR COMPLETO BUSCANDOLO EN LA BBDD ORIGINAL
                     salida.write(f">{ref_id}\n{secuencia_ref}\n")
 
 # Rutas

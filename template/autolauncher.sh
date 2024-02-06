@@ -4,7 +4,6 @@
 #SBATCH --error=t-filter.err
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=200G
-#SBATCH --reservation=u49047421_14
 
 # Inicializar variables
 READ1=""
@@ -116,7 +115,6 @@ OUT=./blastx_out.csv
 echo "Iniciando blastx en $(date)"
 
 module load BLAST+/2.13.0-gompi-2022a
-ulimit unlimited
 blastx -query $TRINITY_FASTA -db $DB -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
 
 echo "Ejecucion de blastx finalizada en $(date)"
