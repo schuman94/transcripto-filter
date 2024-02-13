@@ -2,6 +2,6 @@ porcentaje_minimo_coincidencia=0.4 # (rango: 0.3 - 0.5) Porcentaje mínimo de co
 longitud_minima_subseq=8 # (rango: 8 - 12) Longitud mínima que una subsecuencia debe tener para que sea aceptada con un porcentaje_minimo_coincidencia en su alineamiento.
 porcentaje_minimo_coincidencia_estricto=0.5 # (rango: 0.5 - 0.75) Porcentaje mínimo de coincidencias que debe tener un tramo (longitud_minima_subseq_estrica) del alineamiento para considerarlo bien alineado.
 longitud_minima_subseq_estrica=3 # (rango: 3 - 6) Longitud mínima que una subsecuencia debe tener para que sea aceptada con un porcentaje_minimo_coincidencia_estricto en su alineamiento.
-future_elements=10 # (rango: 8 - 10) Número de elementos futuros a considerar para ver si la subsecuencia actual puede ser extendida manteniendo el porcentaje_minimo_coincidencia
+future_elements=15 # Número de elementos futuros a considerar como máximo para ver si la subsecuencia actual puede ser extendida manteniendo el porcentaje_minimo_coincidencia
 longitud_minima_total_subseqs=25 # (rango: 15 - 25) Longitud mínima que debe tener la suma de todas las subsecuencias aceptadas como bien alineadas.
 ratio_minimo_longitud=0.5 # (rango: 0.4 - 0.5) Siendo ratio_longitud = longitud_total_subseqs / longitud_total_referencia. Es el porcentaje mínimo de la secuencia de referencia que debe abarcar la suma de todas las subsecuencias aceptadas como bien alineadas.

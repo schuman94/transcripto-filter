@@ -12,12 +12,9 @@ class Alignment_Test(Alignment):
             'porcentaje_minimo_coincidencia_estricto': 0.5,
             'longitud_minima_subseq_estrica': 3,
             'future_elements': 20,
-            'future_elements_min': 1,
             'longitud_minima_total_subseqs': 25,
             'ratio_minimo_longitud': 0.5
         }
-
-        self.future_elements_min = params['future_elements_min']
 
         # Llamada al constructor de la clase padre
         super().__init__(frame_id, frame_sequence, ref_id, ref_sequence, params)
@@ -87,8 +84,7 @@ class Alignment_Test(Alignment):
 
         # Definimos una función para verificar si la subsecuencia actual puede ser extendida
         def check_future_elements(i: int) -> bool:
-            # Iteramos desde self.future_elements hasta self.future_elements_min (inclusive)
-            for future_elements in range(self.future_elements, self.future_elements_min - 1, -1):
+            for future_elements in range(self.future_elements, 1, -1):
                 # Obtenemos un slice del array alignment_vector con el número actual de elementos futuros
                 future_seq = segment[i:i+future_elements]
 
@@ -102,9 +98,6 @@ class Alignment_Test(Alignment):
 
                 # Verificamos si la proporción de unos se mantiene o mejora con los elementos futuros disponibles
                 if (future_ones + current_ones) / (len(current_subseq) + len(future_seq)) >= self.porcentaje_minimo_coincidencia:
-                    print(f'Se ha extendido la subsecuencia gracias a {future_elements} future elements')
-                    print((future_ones + current_ones) / (len(current_subseq) + len(future_seq)))
-
                     return True  # Devolvemos True tan pronto como la condición se cumpla
 
             # Si después de probar todo el rango no se cumple la condición, devolvemos False
@@ -122,8 +115,8 @@ class Alignment_Test(Alignment):
                 #print("Se ha añadido un char:")
                 #print(current_subseq)
             else:
-                print("Ha terminado esta subsecuencia:")
-                print(current_subseq)
+                #print("Ha terminado esta subsecuencia:")
+                #print(current_subseq)
                 # Eliminamos los ceros al inicio y final de la subsecuencia actual
                 current_subseq = self.trim_zeros(current_subseq) #Este paso podriamos analizar si hacerlo ahora o despues de la siguiente condicion
                 # Verificamos si la subsecuencia actual cumple los criterios para ser considerada
@@ -135,12 +128,12 @@ class Alignment_Test(Alignment):
                    candidates.append(current_subseq)
                    print("Se ha añadido a la lista de candidatos de este segmento una subsecuencia:")
                    print(current_subseq)
-                else:
-                    print("La current subsec no se ha añadido a la lista de candidatos porque no supera el minimo de coincidencia:")
-                    if len(current_subseq) > 0:
-                        print(current_subseq.count("1")/len(current_subseq))
-                    else:
-                        print("La current subsec no contiene aminoacidos")
+                #else:
+                #    print("La current subsec no se ha añadido a la lista de candidatos porque no supera el minimo de coincidencia:")
+                #    if len(current_subseq) > 0:
+                #        print(current_subseq.count("1")/len(current_subseq))
+                #    else:
+                #        print("La current subsec no contiene aminoacidos")
 
                 # Limpiamos la subsecuencia actual para empezar una nueva
                 current_subseq = []
