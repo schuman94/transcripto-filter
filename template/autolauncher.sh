@@ -216,9 +216,19 @@ CONFIG=./python_scripts/config.txt
 # Directorios de alineamientos por defecto en el workflow
 ALIGNMENTS_DIR=../alignments/Alineamientos_mafft
 ALIGNMENTS_FILTERED_DIR=./Alineamientos_filtrados
+ALIGNMENTS_DISCARDED_DIR=./Alineamientos_descartados
+mkdir -p $ALIGNMENTS_DISCARDED_DIR
 
 # Ejecucion del script
 python3 $P1 $ALIGNMENTS_DIR $ALIGNMENTS_FILTERED_DIR $CONFIG
+
+# Copiar alineamientos descartados en ALIGNMENTS_DISCARDED_DIR
+for file in $ALIGNMENTS_DIR/*.mafft; do
+    filename=$(basename "$file")
+    if [ ! -f "$ALIGNMENTS_FILTERED_DIR/$filename" ]; then
+        cp "$file" "$ALIGNMENTS_DISCARDED_DIR/"
+    fi
+done
 
 echo "Ejecución de curation filter finalizada en: $(date)"
 

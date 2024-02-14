@@ -119,20 +119,24 @@ class Alignment:
 
         # Definimos una función para verificar si la subsecuencia actual puede ser extendida
         def check_future_elements(i: int) -> bool:
-            # Obtenemos un slice del array alignment_vector con un máximo de future_elements elementos
-            future_seq = segment[i+1:i+1+self.future_elements]
+            for future_elements in range(self.future_elements, 1, -1):
+                # Obtenemos un slice del array alignment_vector con el número actual de elementos futuros
+                future_seq = segment[i:i+future_elements]
 
-            # Si no hay elementos futuros, no podemos extender la subsecuencia
-            if len(future_seq) == 0 or "1" not in future_seq:
-                return False
+                # Si no hay elementos futuros, no podemos extender la subsecuencia
+                if len(future_seq) <= 1 or "1" not in future_seq:
+                    return False
 
-            # Contamos los unos en los elementos futuros y en la subsecuencia actual
-            future_ones = future_seq.count("1")
-            current_ones = current_subseq.count("1")
+                # Contamos los unos en los elementos futuros y en la subsecuencia actual
+                future_ones = future_seq.count("1")
+                current_ones = current_subseq.count("1")
 
-            # Verificamos si la proporción de unos se mantiene o mejora con los elementos futuros disponibles
-            return (future_ones + current_ones) / (len(current_subseq) + len(future_seq)) >= self.porcentaje_minimo_coincidencia
+                # Verificamos si la proporción de unos se mantiene o mejora con los elementos futuros disponibles
+                if (future_ones + current_ones) / (len(current_subseq) + len(future_seq)) >= self.porcentaje_minimo_coincidencia:
+                    return True  # Devolvemos True tan pronto como la condición se cumpla
 
+            # Si después de probar todo el rango no se cumple la condición, devolvemos False
+            return False
 
 
         # Iteramos a través del vector de alineación

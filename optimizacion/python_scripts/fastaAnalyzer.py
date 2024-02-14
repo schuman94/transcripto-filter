@@ -18,7 +18,7 @@ class FastaAnalyzer:
         match = re.search(r'seq_(\d+)', self.file_path)
         self.seq_file = match.group(1) if match else os.path.basename(file_path)
 
-        print(f"Analizando {os.path.basename(file_path)}")
+        # print(f"Analizando {os.path.basename(file_path)}")
 
         # Controla si se debe generar un informe
         self.generate_report = generate_report
@@ -55,7 +55,7 @@ class FastaAnalyzer:
             values = [self.seq_file] + [str(alignment.informe_alineamiento[header]) for header in headers[1:]]
             file.write("\t".join(values) + "\n")
 
-            print(f"Se ha añadido una línea de {self.seq_file} al informe en la ruta: {os.path.abspath(file_path)}")
+            # print(f"Se ha añadido una línea de {self.seq_file} al informe en la ruta: {os.path.abspath(file_path)}")
 
     def analyze_fasta(self, output_directory) -> dict:
         """

@@ -1,1 +1,1 @@
-scripts main, fastaAnalyzer y alignment obtenidos de curation_filter version 1.0.0
+scripts main, fastaAnalyzer y alignment obtenidos de curation_filter version 1.3.3

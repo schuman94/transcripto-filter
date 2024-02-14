@@ -6,8 +6,13 @@ def create_config_files(output_directory, parametros):
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    keys = list(parametros.keys())
-    values = list(itertools.product(*parametros.values()))
+    # Separar parámetros fijos de variables
+    fixed_params = {k: v for k, v in parametros.items() if not isinstance(v, list)}
+    variable_params = {k: v for k, v in parametros.items() if isinstance(v, list)}
+
+    # Generar combinaciones solo para los parámetros variables
+    keys = list(variable_params.keys())
+    values = list(itertools.product(*variable_params.values()))
 
     for i, combination in enumerate(values, start=1):
         subdirectory = os.path.join(output_directory, str(i))
@@ -15,6 +20,10 @@ def create_config_files(output_directory, parametros):
 
         config_file_path = os.path.join(subdirectory, "config.txt")
         with open(config_file_path, 'w') as config_file:
+            # Escribir parámetros fijos
+            for key, value in fixed_params.items():
+                config_file.write(f"{key}={value}\n")
+            # Escribir combinaciones de parámetros variables
             for key, value in zip(keys, combination):
                 config_file.write(f"{key}={value}\n")
 
@@ -28,7 +37,7 @@ if __name__ == "__main__":
         "longitud_minima_subseq": [8, 10, 12],
         "porcentaje_minimo_coincidencia_estricto": [0.5, 0.625, 0.75],
         "longitud_minima_subseq_estrica": [3, 5, 7],
-        "future_elements": [8, 9, 10],
+        "future_elements": 15, #[8, 9, 10]
         "longitud_minima_total_subseqs": [15, 20, 25],
         "ratio_minimo_longitud": [0.4, 0.45, 0.5]
     }
