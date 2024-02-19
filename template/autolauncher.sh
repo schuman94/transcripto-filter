@@ -223,7 +223,7 @@ mkdir -p $ALIGNMENTS_DISCARDED_DIR
 python3 $P1 $ALIGNMENTS_DIR $ALIGNMENTS_FILTERED_DIR $CONFIG
 
 # Copiar alineamientos descartados en ALIGNMENTS_DISCARDED_DIR
-for file in $ALIGNMENTS_DIR/*.mafft; do
+for file in $ALIGNMENTS_DIR/*.mafft.fasta; do
     filename=$(basename "$file")
     if [ ! -f "$ALIGNMENTS_FILTERED_DIR/$filename" ]; then
         cp "$file" "$ALIGNMENTS_DISCARDED_DIR/"
