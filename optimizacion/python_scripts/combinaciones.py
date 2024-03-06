@@ -37,7 +37,7 @@ if __name__ == "__main__":
         "longitud_minima_subseq": [8, 10, 12],
         "porcentaje_minimo_coincidencia_estricto": [0.5, 0.625, 0.75],
         "longitud_minima_subseq_estrica": [3, 5, 7],
-        "future_elements": 15, #[8, 9, 10]
+        "future_elements": [8, 10, 12],  # En vez de una lista, puede ser un valor fijo.
         "longitud_minima_total_subseqs": [15, 20, 25],
         "ratio_minimo_longitud": [0.4, 0.45, 0.5]
     }
