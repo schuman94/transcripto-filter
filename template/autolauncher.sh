@@ -4,6 +4,7 @@
 #SBATCH --error=t-filter.err
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=200G
+#SBATCH --time=7-00:00
 
 # Inicializar variables
 READ1=""
@@ -12,6 +13,7 @@ DB=""
 TRINITY_FASTA=""
 DB2="" # Base de datos de peptidos señal
 DB3="" # Base de datos de virroconus
+FASTQC=true # Por defecto, fastqc es true
 
 # Procesar argumentos
 while [[ $# -gt 0 ]]; do
@@ -26,8 +28,8 @@ while [[ $# -gt 0 ]]; do
             READ2=$(realpath "$2")
             shift
             ;;
-        --db)
-            DB=$(realpath "$2")
+        --db1)
+            DB1=$(realpath "$2")
             shift
             ;;
         --trinity)
@@ -42,6 +44,10 @@ while [[ $# -gt 0 ]]; do
             DB3=$(realpath "$2")
             shift
             ;;
+        --fastqc)
+            FASTQC=$2
+            shift
+            ;;
         *)
             # Argumento desconocido
             echo "Argumento no reconocido: $key"
@@ -50,16 +56,16 @@ while [[ $# -gt 0 ]]; do
     shift # Pasar al siguiente argumento
 done
 
-# Verificar la presencia del argumento obligatorio --db
-if [[ -z $DB ]]; then
-    echo "El argumento --db es obligatorio."
+# Verificar la presencia del argumento obligatorio --db1
+if [[ -z $DB1 ]]; then
+    echo "El argumento --db1 es obligatorio."
     exit 1
 fi
 
 # Comenzar desde BUSCO si se proporciona --trinity
 if [[ -n $TRINITY_FASTA ]]; then
-    # Saltar las secciones FASTQC y TRINITY
-    echo "Saltando FASTQC y TRINITY, comenzando desde BUSCO"
+    # Saltar las secciones FASTQC, TRINITY y BUSCO
+    echo "Saltando FASTQC, TRINITY y BUSCO, comenzando desde BLASTX"
 
 else
     # Verificar la presencia de --r1 y --r2
@@ -69,17 +75,20 @@ else
     fi
 
     # FASTQC
-    cd ./fastqc
+    # Ejecutar FASTQC solo si FASTQC es true
+    if [[ $FASTQC == true ]]; then
+        cd ./fastqc
 
-    echo "Iniciando el fastqc en: $(date)"
+        echo "Iniciando el fastqc en: $(date)"
 
-    mkdir -p ./output
+        mkdir -p ./output
 
-    module load FastQC/0.11.9-Java-11
-    fastqc $READ1 $READ2 -o ./output/
+        module load FastQC/0.11.9-Java-11
+        fastqc $READ1 $READ2 -o ./output/
 
-    echo "Ejecucion de fastqc finalizada en: $(date)"
-    cd ..
+        echo "Ejecucion de fastqc finalizada en: $(date)"
+        cd ..
+    fi
 
     # TRINITY
     cd ./trinity
@@ -98,23 +107,22 @@ else
 
     sleep 5
 
+    # BUSCO
+    cd ./busco
+
+    BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
+
+    echo "Iniciando busco en: $(date)"
+
+    module load BUSCO
+    busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
+
+    echo "Ejecucion de busco finalizada en $(date)"
+    cd ..
+
+    sleep 5
+
 fi
-
-# BUSCO
-cd ./busco
-
-BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
-
-echo "Iniciando busco en: $(date)"
-
-module load BUSCO
-busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
-
-echo "Ejecucion de busco finalizada en $(date)"
-cd ..
-
-sleep 5
-
 
 # BLASTX
 cd ./blastx
@@ -125,7 +133,7 @@ OUT=./blastx_out.csv
 echo "Iniciando blastx en $(date)"
 
 module load BLAST+/2.13.0-gompi-2022a
-blastx -query $TRINITY_FASTA -db $DB -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
+blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
 
 echo "Ejecucion de blastx finalizada en $(date)"
 BLAST_CSV=$(realpath $OUT)
@@ -162,7 +170,7 @@ mkdir -p $ALINEAMIENTOS
 
 # Ejecucion del script 2
 echo "Executing the second R script: create_sequences_groups"
-Rscript $R2 $BLAST_CSV $EXTRACTED $DB $ALINEAMIENTOS
+Rscript $R2 $BLAST_CSV $EXTRACTED $DB1 $ALINEAMIENTOS
 
 echo "R scripts finished"
 
@@ -286,10 +294,10 @@ echo "Paso extra: Recuperando descripción de alineamientos antiguos en Metionin
 
 PDESCRIPTION=../../superfamily/python_scripts/description.py
 
-python3 $PDESCRIPTION ../resultados/Alineamientos_Perfectos $DB
-python3 $PDESCRIPTION ../resultados/Alineamientos_M_Previa $DB
-python3 $PDESCRIPTION ../resultados/Alineamientos_Revision_Manual $DB
-python3 $PDESCRIPTION ../resultados/Alineamientos_Multiframe $DB
+python3 $PDESCRIPTION ../resultados/Alineamientos_Perfectos $DB1
+python3 $PDESCRIPTION ../resultados/Alineamientos_M_Previa $DB1
+python3 $PDESCRIPTION ../resultados/Alineamientos_Revision_Manual $DB1
+python3 $PDESCRIPTION ../resultados/Alineamientos_Multiframe $DB1
 
 cd ../../
 
