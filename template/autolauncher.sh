@@ -344,12 +344,25 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     # Crea el directorio de salida si no existe
     mkdir -p $SIGNAL_OUT
 
-    # Ejecuta blastp
-    echo "iniciando blastp"
-    blastp -query $FASTA_ini/perfectos.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/perfectos.csv -num_threads 4
-    blastp -query $FASTA_ini/mprevia.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/mprevia.csv -num_threads 4
+
+    # Ejecuta el primer blastp
+    echo "iniciando primer blastp"
+    if [ -s $FASTA_ini/perfectos.fasta ]; then
+        blastp -query $FASTA_ini/perfectos.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/perfectos.csv -num_threads 4
+    else
+        echo "$FASTA_ini/perfectos.fasta está vacío. Creando archivo de salida vacío."
+        touch $SIGNAL_OUT/perfectos.csv
+    fi
+
+    if [ -s $FASTA_ini/mprevia.fasta ]; then
+        blastp -query $FASTA_ini/mprevia.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/mprevia.csv -num_threads 4
+    else
+        echo "$FASTA_ini/mprevia.fasta está vacío. Creando archivo de salida vacío."
+        touch $SIGNAL_OUT/mprevia.csv
+    fi
 
     echo "Resultados guardados en $SIGNAL_OUT"
+
 
     # Procesar resultado blast
     echo "procesando resultados de blast"
@@ -372,16 +385,47 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     BLAST_OUT=./blast_out
     mkdir -p $BLAST_OUT
 
-    # Ejecuta segundo blastp
-    echo "iniciando blastp"
-    blastp -query $FASTA_post/perfectos_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/perfectos_SF.csv -num_threads 4
-    blastp -query $FASTA_post/perfectos_NoSF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/perfectos_NoSF.csv -num_threads 4
-    blastp -query $FASTA_post/mprevia_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/mprevia_SF.csv -num_threads 4
-    blastp -query $FASTA_post/mprevia_NoSF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/mprevia_NoSF.csv -num_threads 4
 
-    blastp -query $FASTA_ini/revision_manual.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/revision_manual.csv -num_threads 4
+    # Ejecuta segundo blastp
+    echo "iniciando segundo blastp"
+    # Verificar y ejecutar blastp solo si el archivo no está vacío
+    if [ -s $FASTA_post/perfectos_SF.fasta ]; then
+        blastp -query $FASTA_post/perfectos_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/perfectos_SF.csv -num_threads 4
+    else
+        echo "$FASTA_post/perfectos_SF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/perfectos_SF.csv
+    fi
+
+    if [ -s $FASTA_post/perfectos_NoSF.fasta ]; then
+        blastp -query $FASTA_post/perfectos_NoSF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/perfectos_NoSF.csv -num_threads 4
+    else
+        echo "$FASTA_post/perfectos_NoSF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/perfectos_NoSF.csv
+    fi
+
+    if [ -s $FASTA_post/mprevia_SF.fasta ]; then
+        blastp -query $FASTA_post/mprevia_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/mprevia_SF.csv -num_threads 4
+    else
+        echo "$FASTA_post/mprevia_SF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/mprevia_SF.csv
+    fi
+
+    if [ -s $FASTA_post/mprevia_NoSF.fasta ]; then
+        blastp -query $FASTA_post/mprevia_NoSF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/mprevia_NoSF.csv -num_threads 4
+    else
+        echo "$FASTA_post/mprevia_NoSF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/mprevia_NoSF.csv
+    fi
+
+    if [ -s $FASTA_ini/revision_manual.fasta ]; then
+        blastp -query $FASTA_ini/revision_manual.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/revision_manual.csv -num_threads 4
+    else
+        echo "$FASTA_ini/revision_manual.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/revision_manual.csv
+    fi
 
     echo "Todos los blast han finalizado, iniciando procesamiento de los resultados"
+
 
     RESULTADOS=./resultados
     mkdir -p $RESULTADOS
