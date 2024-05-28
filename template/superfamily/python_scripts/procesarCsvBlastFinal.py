@@ -1,6 +1,7 @@
 import pandas as pd
 from Bio import SeqIO
 import sys
+import os
 
 def extraer_SF_hormone(sseqid, fasta_path):
     for record in SeqIO.parse(fasta_path, "fasta"):
@@ -14,10 +15,19 @@ def extraer_SF_hormone(sseqid, fasta_path):
     return "unknown"
 
 def main(blast_out_csv, blast_signal_csv, db_fasta, csv_ini, output_csv):
+    # Verificar si el archivo blast_out_csv está vacío
+    if os.path.getsize(blast_out_csv) == 0:
+        print(f"El archivo {blast_out_csv} está vacío. Se creará un archivo de salida vacío con encabezados.")
+        # Crear un DataFrame vacío con los encabezados esperados
+        df_final = pd.DataFrame(columns=['n', 'id', 'SF_signal', 'pident_signal', 'match', 'SF-hormone', 'evalue', 'secuencia'])
+        df_final.to_csv(output_csv, index=False)
+        return
+
+    # Leer el archivo blast_out_csv
     df_blast_out = pd.read_csv(blast_out_csv, header=None).sort_values(by=[10]).drop_duplicates(subset=0, keep='first')
 
-    df_blast_signal = pd.read_csv(blast_signal_csv, header=None)
-
+    # Leer los archivos CSV
+    df_blast_signal = pd.read_csv(blast_signal_csv)  # Leer con encabezados
     df_ini = pd.read_csv(csv_ini)
 
     final_data = []
@@ -27,9 +37,12 @@ def main(blast_out_csv, blast_signal_csv, db_fasta, csv_ini, output_csv):
         match = row[1]
         evalue = row[10]
 
-        SF_signal_row = df_blast_signal[df_blast_signal[0] == id]
-        SF_signal = SF_signal_row.iloc[0][4] if not SF_signal_row.empty else "unknown"
-        pident = SF_signal_row.iloc[0][1] if not SF_signal_row.empty else 0
+        # Filtrar df_blast_signal usando el nombre de la columna
+        SF_signal_row = df_blast_signal[df_blast_signal['qseqid'] == id]
+
+        # Manejo del DataFrame vacío
+        SF_signal = SF_signal_row.iloc[0]['superfamily'] if not SF_signal_row.empty else "unknown"
+        pident = SF_signal_row.iloc[0]['pident'] if not SF_signal_row.empty else 0
 
         SF_hormone = extraer_SF_hormone(match, db_fasta)
 
@@ -42,12 +55,17 @@ def main(blast_out_csv, blast_signal_csv, db_fasta, csv_ini, output_csv):
 
         final_data.append([n, id, SF_signal, pident, match, SF_hormone, evalue, secuencia])
 
+    # Crear el DataFrame final con los encabezados, incluso si final_data está vacío
     df_final = pd.DataFrame(final_data, columns=['n', 'id', 'SF_signal', 'pident_signal', 'match', 'SF-hormone', 'evalue', 'secuencia'])
 
-    # Convertir 'n' a entero para el ordenamiento
-    df_final['n'] = pd.to_numeric(df_final['n'], errors='coerce')
-    df_final = df_final.sort_values(by='n', ascending=True)
+    if df_final.empty:
+        print("No existen datos para: " + output_csv + ". Se creará un csv vacío.")
+    else:
+        # Convertir 'n' a entero para el ordenamiento
+        df_final['n'] = pd.to_numeric(df_final['n'], errors='coerce')
+        df_final = df_final.sort_values(by='n', ascending=True)
 
+    # Guardar el DataFrame final en un archivo CSV, garantizando que los encabezados siempre se creen
     df_final.to_csv(output_csv, index=False)
 
 if __name__ == "__main__":
@@ -62,7 +80,6 @@ if __name__ == "__main__":
     output_csv = sys.argv[5]
 
     main(blast_out_csv, blast_signal_csv, db_fasta, csv_ini, output_csv)
-
 
 
 """
