@@ -3,3 +3,4 @@ optimizacion/plantillas_combinaciones
 tutorial/*
 !tutorial/*.pdf
 optimizacion/TF36
+test/
