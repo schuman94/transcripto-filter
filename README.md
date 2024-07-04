@@ -1,7 +1,9 @@
-# Transcripto-filter: Flujo de trabajo de análisis de transcriptomas y filtrado de péptidos adaptado a un clúster de supercomputación
+# Transcripto-filter: Flujo de trabajo automatizado para el análisis de transcriptomas y filtrado de péptidos adaptado a un entorno de supercomputación con SLURM
 
 ## Descripción
-Esta herramienta bioinformática está diseñada para obtener alineamientos de péptidos a partir de reads. El proceso incluye varios pasos como la instalación y conexión con Bitvise SSH Client, preparación del directorio de trabajo, análisis de calidad con FastQC, ensamblaje con Trinity, entre otros.
+Esta herramienta bioinformática está diseñada para obtener alineamientos de péptidos a partir de reads procedentes de la secuenciación de ARN. El proceso incluye varios pasos como el análisis de calidad con FastQC, ensamblaje con Trinity, detección de alineamientos frente a una base de datos con BLAST y filtrado de alineamientos mediante diferentes scripts.
+
+La herramienta está optimizada para el análisis de péptidos procedentes cónidos (Conidae) y su clasificación por superfamilias de conotoxinas.
 
 ## Instalación
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
@@ -19,7 +21,8 @@ Antes de comenzar, asegúrate de tener instalado lo siguiente:
 5. **Control de Calidad con BUSCO**: Verifica la calidad del ensamblaje con BUSCO.
 6. **Uso de BLASTX**: Compara las secuencias con una base de datos de péptidos.
 7. **Extracción de Alineamientos**: Extrae los alineamientos relevantes.
-8. **Filtrado de Alineamientos**: Filtra los alineamientos para obtener los más relevantes.
+8. **Filtrado de Alineamientos**: Filtra los alineamientos para obtener los más relevantes. Este paso incluye los filtros: curation-filter y metionine-filter.
+9. **Clasificación por superfamilias**: Clasifica las secuencias de péptidos en diferentes superfamilias atendiendo a una bases de datos personalizada.
 
 ## Licencia
 Este proyecto se distribuye bajo la licencia GPL-3.0
