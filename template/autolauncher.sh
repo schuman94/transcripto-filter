@@ -4,7 +4,7 @@
 #SBATCH --error=t-filter.err
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=200G
-#SBATCH --time=7-00:00
+#SBATCH --time=9-00:00
 
 # Inicializar variables
 READ1=""
@@ -14,6 +14,7 @@ TRINITY_FASTA=""
 DB2="" # Base de datos de peptidos señal
 DB3="" # Base de datos de virroconus
 FASTQC=true # Por defecto, fastqc es true
+BUSCO=true  # Por defecto, busco es true
 
 # Procesar argumentos
 while [[ $# -gt 0 ]]; do
@@ -48,6 +49,10 @@ while [[ $# -gt 0 ]]; do
             FASTQC=$2
             shift
             ;;
+        --busco)
+            BUSCO=$2
+            shift
+            ;;
         *)
             # Argumento desconocido
             echo "Argumento no reconocido: $key"
@@ -64,8 +69,8 @@ fi
 
 # Comenzar desde BUSCO si se proporciona --trinity
 if [[ -n $TRINITY_FASTA ]]; then
-    # Saltar las secciones FASTQC, TRINITY y BUSCO
-    echo "Saltando FASTQC, TRINITY y BUSCO, comenzando desde BLASTX"
+    # Saltar las secciones FASTQC y TRINITY
+    echo "Fasta ensamblado proporcionado. Saltando FASTQC y TRINITY"
 
 else
     # Verificar la presencia de --r1 y --r2
@@ -107,21 +112,18 @@ else
 
     sleep 5
 
-    # BUSCO
+fi
+
+# BUSCO
+if [[ $BUSCO == true ]]; then
     cd ./busco
-
     BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
-
     echo "Iniciando busco en: $(date)"
-
     module load BUSCO
     busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
-
     echo "Ejecucion de busco finalizada en $(date)"
     cd ..
-
     sleep 5
-
 fi
 
 # BLASTX
