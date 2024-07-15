@@ -17,12 +17,12 @@ SUPERFAMILY_DIR="$WORK_DIR/superfamily"
 TRINITY_DIR="$WORK_DIR/trinity"
 
 # Variables para omitir limpieza en FASTQC, TRINITY y BUSCO
-SKIP_TRINITY=false
+SKIP=true
 
 # Procesar opciones de línea de comandos
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --trinity) SKIP_TRINITY=true ;;
+        --all) SKIP=false ;;
         *) echo "Opción desconocida: $1" ;;
     esac
     shift
@@ -45,7 +45,7 @@ clean_directory_except_sh_and_optional_subdir "$ALIGNMENTS_DIR" "RScripts"
 
 # Limpiar los otros directorios
 clean_directory_except_sh_and_optional_subdir "$BLASTX_DIR"
-if [ "$SKIP_TRINITY" = false ]; then
+if [ "$SKIP" = false ]; then
     clean_directory_except_sh_and_optional_subdir "$BUSCO_DIR"
     clean_directory_except_sh_and_optional_subdir "$FASTQC_DIR"
     clean_directory_except_sh_and_optional_subdir "$TRINITY_DIR"
