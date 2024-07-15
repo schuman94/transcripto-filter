@@ -181,9 +181,9 @@ class Alignment_Test(Alignment):
 
 # Ejemplo de uso
 # >TRINITY_DN15_c0_g1_i1_Frame_R3
-frame = "------*YCHAEIFHYN*PTLQPIER*VSNSDIFMSDTAT*RFFHDK*PTFVRCDHTANRRQR---------------RVNLTATPRAERH---S*DKRDR------*QFMMSTLV------------VLLTICL--LMLPL-----------------TAR----------------QLDADQLA--------DQLAERMEDISADQ------------------------------NRW----------------FDPVKRCCMRPI----------CMC-----PCCVNG*SSV*STRKTSAVSFRF---------------------ALV*RLMTKLLF*SGFSYIFFYSYPTLDKLITIDVIF-------YQCLAFSSVISVL-----"
+frame = "---------------------YTWQVLNER---------------------QDRF--FSPGQ------GGLTTSRMRCLPVFIILLLLIPFAPSVDVQTI---TKNDVTL--------------DSLRNVAT--------------------KPLQRLLN-T----------------RC---------C------------------------IKVHPC----------------------------------------CHNG*NETK*-----LEKRPLQTVPGCEIW------KADCSFRTCSW-----------------------------------------------"
 # >Im_M_11|imperialis|M|49148.395122
-refer = "--------------------------------------------------------------------------------------------------------------MMSTLV------------VLLTICL--LMLPL-----------------TAR----------------QLDADQLA--------DQLAERMEDISADQ------------------------------NRW----------------FDPVKRCCMRPI----------CMC-----PCCVNG----------------------------------------------------------------------------------------------------"
+refer = "---------------------------------------------------------------------------MYCLPVFIILLLLIPSAPSVDVQPI---TKNDVIL--------------DSLRNVAT--------------------KPLQRLLN-T----------------RC---------C------------------------IKFHPC----------------------------------------CHNG------------------------------------------------------------------------------------------"
 
 
 

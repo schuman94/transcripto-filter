@@ -9,6 +9,17 @@ echo "Ejecución iniciada en: $(date)"
 module load Python/3.10.8-GCCcore-12.2.0
 module load Biopython/1.79-foss-2021a
 
+# Creacion de directorios
+mkdir -p ./mafft
+mkdir -p ./mafft/Alineamientos_mafft
+mkdir -p ./mafft/Alineamientos_pre_mafft
+mkdir -p ./resultados
+mkdir -p ./resultados/Alineamientos_Limpios
+mkdir -p ./resultados/Alineamientos_M_previa
+mkdir -p ./resultados/Alineamientos_Multiframe
+mkdir -p ./resultados/Alineamientos_Perfectos
+mkdir -p ./resultados/Alineamientos_Revision_Manual
+
 # Generar los ficheros fasta
 cd ./python_scripts
 python3 generarFastas.py

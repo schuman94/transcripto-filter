@@ -4,7 +4,7 @@
 #SBATCH --error=t-filter.err
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=200G
-#SBATCH --time=9-00:00
+#SBATCH --time=14-00:00
 
 # Inicializar variables
 READ1=""
@@ -237,6 +237,7 @@ CONFIG=./python_scripts/config.txt
 ALIGNMENTS_DIR=../alignments/Alineamientos_mafft
 ALIGNMENTS_FILTERED_DIR=./Alineamientos_filtrados
 ALIGNMENTS_DISCARDED_DIR=./Alineamientos_descartados
+mkdir -p $ALIGNMENTS_FILTERED_DIR
 mkdir -p $ALIGNMENTS_DISCARDED_DIR
 
 # Ejecucion del script
@@ -261,6 +262,17 @@ sleep 5
 cd ./metionine_filter
 
 echo "Ejecución de metionine filter iniciada en: $(date)"
+
+# Creacion de directorios
+mkdir -p ./mafft
+mkdir -p ./mafft/Alineamientos_mafft
+mkdir -p ./mafft/Alineamientos_pre_mafft
+mkdir -p ./resultados
+mkdir -p ./resultados/Alineamientos_Limpios
+mkdir -p ./resultados/Alineamientos_M_previa
+mkdir -p ./resultados/Alineamientos_Multiframe
+mkdir -p ./resultados/Alineamientos_Perfectos
+mkdir -p ./resultados/Alineamientos_Revision_Manual
 
 # Generar los ficheros fasta
 cd ./python_scripts
@@ -327,6 +339,8 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
     CSV_ini=./csv_n-id-seq
     FASTA_ini=./fasta-preBlast_signal
+    mkdir -p $CSV_ini
+    mkdir -p $FASTA_ini
 
     python3 $SFP1 $PERFECTOS_DIR $CSV_ini/perfectos.csv True
     python3 $SFP1 $MPREVIA_DIR $CSV_ini/mprevia.csv True
@@ -375,6 +389,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     echo "creando nuevos ficheros fasta para el segundo blast"
 
     FASTA_post=./fasta-postBlast_signal
+    mkdir -p $FASTA_post
 
     python3 $SFP4 $SIGNAL_OUT/perfectos_SF.csv $CSV_ini/perfectos.csv $FASTA_post
     python3 $SFP4 $SIGNAL_OUT/perfectos_NoSF.csv $CSV_ini/perfectos.csv $FASTA_post

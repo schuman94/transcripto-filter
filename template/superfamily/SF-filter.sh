@@ -30,6 +30,8 @@ echo "Construyendo csv de secuencias"
 
 CSV_ini=./csv_n-id-seq
 FASTA_ini=./fasta-preBlast_signal
+mkdir -p $CSV_ini
+mkdir -p $FASTA_ini
 
 python3 $P1 $PERFECTOS_DIR $CSV_ini/perfectos.csv True
 python3 $P1 $MPREVIA_DIR $CSV_ini/mprevia.csv True
@@ -79,6 +81,7 @@ python3 $P3 $SIGNAL_OUT/mprevia.csv $CSV_ini/mprevia.csv $SIGNAL_OUT
 echo "creando nuevos ficheros fasta para el segundo blast"
 
 FASTA_post=./fasta-postBlast_signal
+mkdir -p $FASTA_post
 
 python3 $P4 $SIGNAL_OUT/perfectos_SF.csv $CSV_ini/perfectos.csv $FASTA_post
 python3 $P4 $SIGNAL_OUT/perfectos_NoSF.csv $CSV_ini/perfectos.csv $FASTA_post

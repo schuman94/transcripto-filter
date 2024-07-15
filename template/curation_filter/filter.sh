@@ -20,6 +20,7 @@ CONFIG=./python_scripts/config.txt
 ALIGNMENTS_DIR=../alignments/Alineamientos_mafft
 ALIGNMENTS_FILTERED_DIR=./Alineamientos_filtrados
 ALIGNMENTS_DISCARDED_DIR=./Alineamientos_descartados
+mkdir -p $ALIGNMENTS_FILTERED_DIR
 mkdir -p $ALIGNMENTS_DISCARDED_DIR
 
 # Ejecucion del script

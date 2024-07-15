@@ -4,7 +4,7 @@
 #SBATCH --error=trinity.err
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=200G
-#SBATCH --time=7-00:00
+#SBATCH --time=14-00:00
 
 P1=$1
 P2=$2
