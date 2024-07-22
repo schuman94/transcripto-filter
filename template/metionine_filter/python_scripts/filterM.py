@@ -120,7 +120,7 @@ def comprobar_secuencia(input_directory, multiframe_directory, limpios_directory
                         escribir_fasta_secuencias_limpias(nuevo_archivo, secuencias_limpias)
                         break  # Terminamos el bucle de lectura de los ref_seq
                     else: # existe PosM_anterior
-                        # Enviamos una copia del fichero a la carpeta Alineamientos_M_previa:
+                        # Enviamos una copia del fichero a la carpeta Alineamientos_M_Previa:
                         shutil.copy(file_path, os.path.join(metionina_previa_directory, filename))
                         break  # Terminamos el bucle de lectura de los ref_seq
                 if dudoso:
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     multiframe_directory = '../resultados/Alineamientos_Multiframe'
     limpios_directory = '../resultados/Alineamientos_Limpios'
     perfectos_directory = '../resultados/Alineamientos_Perfectos'
-    metionina_previa_directory = '../resultados/Alineamientos_M_previa'
+    metionina_previa_directory = '../resultados/Alineamientos_M_Previa'
     revision_manual_directory = '../resultados/Alineamientos_Revision_Manual'
     comprobar_secuencia(input_directory, multiframe_directory, limpios_directory,
                          perfectos_directory, metionina_previa_directory, revision_manual_directory)

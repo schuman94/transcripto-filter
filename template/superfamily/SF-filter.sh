@@ -23,7 +23,7 @@ P8=./python_scripts/procesar_csv_revision_manual.py
 P9=./python_scripts/description.py
 
 PERFECTOS_DIR=../metionine_filter/resultados/Alineamientos_Perfectos
-MPREVIA_DIR=../metionine_filter/resultados/Alineamientos_M_previa
+MPREVIA_DIR=../metionine_filter/resultados/Alineamientos_M_Previa
 REVISION_DIR=../metionine_filter/resultados/Alineamientos_Revision_Manual
 
 echo "Construyendo csv de secuencias"
@@ -220,7 +220,7 @@ echo "Paso extra: Recuperando descripción de alineamientos antiguos en Metionin
 DB3=$3
 
 python3 $P9 ../metionine_filter/resultados/Alineamientos_Perfectos $DB3
-python3 $P9 ../metionine_filter/resultados/Alineamientos_M_previa $DB3
+python3 $P9 ../metionine_filter/resultados/Alineamientos_M_Previa $DB3
 python3 $P9 ../metionine_filter/resultados/Alineamientos_Revision_Manual $DB3
 python3 $P9 ../metionine_filter/resultados/Alineamientos_Multiframe $DB3
 

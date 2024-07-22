@@ -15,7 +15,7 @@ mkdir -p ./mafft/Alineamientos_mafft
 mkdir -p ./mafft/Alineamientos_pre_mafft
 mkdir -p ./resultados
 mkdir -p ./resultados/Alineamientos_Limpios
-mkdir -p ./resultados/Alineamientos_M_previa
+mkdir -p ./resultados/Alineamientos_M_Previa
 mkdir -p ./resultados/Alineamientos_Multiframe
 mkdir -p ./resultados/Alineamientos_Perfectos
 mkdir -p ./resultados/Alineamientos_Revision_Manual

@@ -269,7 +269,7 @@ mkdir -p ./mafft/Alineamientos_mafft
 mkdir -p ./mafft/Alineamientos_pre_mafft
 mkdir -p ./resultados
 mkdir -p ./resultados/Alineamientos_Limpios
-mkdir -p ./resultados/Alineamientos_M_previa
+mkdir -p ./resultados/Alineamientos_M_Previa
 mkdir -p ./resultados/Alineamientos_Multiframe
 mkdir -p ./resultados/Alineamientos_Perfectos
 mkdir -p ./resultados/Alineamientos_Revision_Manual
@@ -309,7 +309,7 @@ echo "Paso extra: Recuperando descripción de alineamientos antiguos en Metionin
 PDESCRIPTION=../../superfamily/python_scripts/description.py
 
 python3 $PDESCRIPTION ../resultados/Alineamientos_Perfectos $DB1
-python3 $PDESCRIPTION ../resultados/Alineamientos_M_previa $DB1
+python3 $PDESCRIPTION ../resultados/Alineamientos_M_Previa $DB1
 python3 $PDESCRIPTION ../resultados/Alineamientos_Revision_Manual $DB1
 python3 $PDESCRIPTION ../resultados/Alineamientos_Multiframe $DB1
 
@@ -332,7 +332,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     SFP8=./python_scripts/procesar_csv_revision_manual.py
 
     PERFECTOS_DIR=../metionine_filter/resultados/Alineamientos_Perfectos
-    MPREVIA_DIR=../metionine_filter/resultados/Alineamientos_M_previa
+    MPREVIA_DIR=../metionine_filter/resultados/Alineamientos_M_Previa
     REVISION_DIR=../metionine_filter/resultados/Alineamientos_Revision_Manual
 
     echo "Construyendo csv de secuencias"
