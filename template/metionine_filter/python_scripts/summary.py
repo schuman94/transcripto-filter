@@ -6,7 +6,7 @@ resultados_path = "../resultados/"
 # Nombres de los directorios y cómo se referirá a ellos
 directorios = {
     "Alineamientos_Perfectos": "Perfectos",
-    "Alineamientos_M_Previa": "Metionina previa",
+    "Alineamientos_M_previa": "Metionina previa",
     "Alineamientos_Multiframe": "Multiframe",
     "Alineamientos_Revision_Manual": "Revision manual"
 }

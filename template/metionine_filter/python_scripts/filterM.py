@@ -131,7 +131,7 @@ if __name__ == "__main__":
     multiframe_directory = '../resultados/Alineamientos_Multiframe'
     limpios_directory = '../resultados/Alineamientos_Limpios'
     perfectos_directory = '../resultados/Alineamientos_Perfectos'
-    metionina_previa_directory = '../resultados/Alineamientos_M_Previa'
+    metionina_previa_directory = '../resultados/Alineamientos_M_previa'
     revision_manual_directory = '../resultados/Alineamientos_Revision_Manual'
     comprobar_secuencia(input_directory, multiframe_directory, limpios_directory,
                          perfectos_directory, metionina_previa_directory, revision_manual_directory)
