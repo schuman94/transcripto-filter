@@ -50,3 +50,5 @@ gzip combined_read2.fq
 # Eliminar los archivos intermedios
 rm combined_read1.fq
 rm combined_read2.fq
+
+echo "Los reads han sido combinados correctamente"
