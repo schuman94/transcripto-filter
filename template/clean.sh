@@ -15,6 +15,7 @@ FASTQC_DIR="$WORK_DIR/fastqc"
 METIONINE_FILTER_DIR="$WORK_DIR/metionine_filter"
 SUPERFAMILY_DIR="$WORK_DIR/superfamily"
 TRINITY_DIR="$WORK_DIR/trinity"
+QUANTIFICATION_DIR="$WORK_DIR/quantification"
 
 # Variables para omitir limpieza en FASTQC, TRINITY y BUSCO
 SKIP=true
@@ -55,6 +56,7 @@ fi
 clean_directory_except_sh_and_optional_subdir "$CURATION_FILTER_DIR" "python_scripts"
 clean_directory_except_sh_and_optional_subdir "$METIONINE_FILTER_DIR" "python_scripts"
 clean_directory_except_sh_and_optional_subdir "$SUPERFAMILY_DIR" "python_scripts"
+clean_directory_except_sh_and_optional_subdir "$QUANTIFICATION_DIR" "python_scripts"
 
 # Eliminar archivos específicos en el directorio de trabajo
 echo "Eliminando archivos t-filter.err y t-filter.out en el directorio de trabajo ..."

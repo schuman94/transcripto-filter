@@ -315,7 +315,6 @@ python3 $PDESCRIPTION ../resultados/Alineamientos_Multiframe $DB1
 
 cd ../../
 
-# SUPERFAMILY
 # Antes de ejecutar la sección de SF filter, verifica si DB2 y DB3 están configuradas
 if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
@@ -524,38 +523,8 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     echo "Todos los ficheros csv movidos a $RESULTADOS"
     echo "Alineamientos disponibles en alineamientos_NoSF"
 
-    cd ..
-
-    # QUANTIFICATION
-    # Antes de ejecutar la sección de quantification, verifica si READ1 y READ2 están configurados
-    if [[ -n $READ1 ]] && [[ -n $READ2 ]]; then
-
-        echo "Ejecución de quantification iniciada"
-        cd ./quantification
-
-        QUANT_DIR="../trinity/trinity_out_dir/salmon_outdir"
-        RESULTS_DIR="resultados"
-
-        # Crear el directorio "resultados" si no existe
-        if [ ! -d "$RESULTS_DIR" ]; then
-            mkdir -p "$RESULTS_DIR"
-            echo "Directorio de resultados $RESULTS_DIR creado."
-        fi
-
-        echo "Iniciando el procesamiento de CSVs con Python"
-
-        # Llamar al script Python para procesar los CSVs y añadir el TPM
-        module load Python/3.10.8-GCCcore-12.2.0
-        python3 ./python_scripts/tpm.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
-
-        echo "Proceso completado. CSVs actualizados en quantification/resultados"
-
-    else
-        echo "Los READS no han sido proporcionados, no se puede realizar el cálculo de los niveles de expresión"
-    fi
-
 else
-    echo "DB2 o DB3 no proporcionados, saltando la ejecución de SF filter y quantification."
+    echo "DB2 o DB3 no proporcionados, saltando la ejecución de SF filter."
 fi
 
 echo "Ejecución finalizada en: $(date)"
