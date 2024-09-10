@@ -545,6 +545,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         echo "Iniciando el procesamiento de CSVs con Python"
 
         # Llamar al script Python para procesar los CSVs y añadir el TPM
+        module purge
         module load Python/3.10.8-GCCcore-12.2.0
         python3 ./python_scripts/tpm.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
 
