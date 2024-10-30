@@ -24,7 +24,7 @@ def main(blast_out_csv, blast_signal_csv, db_fasta, csv_ini, output_csv):
         return
 
     # Leer el archivo blast_out_csv
-    df_blast_out = pd.read_csv(blast_out_csv, header=None).sort_values(by=[10]).drop_duplicates(subset=0, keep='first')
+    df_blast_out = pd.read_csv(blast_out_csv, header=None).sort_values(by=[10, 2, 11, 3], ascending=[True, False, False, False]).drop_duplicates(subset=0, keep='first')
 
     # Leer los archivos CSV
     df_blast_signal = pd.read_csv(blast_signal_csv)  # Leer con encabezados
