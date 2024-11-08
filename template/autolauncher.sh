@@ -149,7 +149,7 @@ cd ./alignments
 
 echo "Ejecución de alineamientos y mafft iniciada en: $(date)"
 
-module load R
+module load R/4.3.0
 
 # R script paths
 R1=./RScripts/1-Find_extract_create.R
