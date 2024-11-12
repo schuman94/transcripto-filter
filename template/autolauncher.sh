@@ -6,6 +6,9 @@
 #SBATCH --mem=200G
 #SBATCH --time=14-00:00
 
+# Cargar los módulos desde el archivo separado
+source ./load_modules.sh
+
 # Inicializar variables
 READ1=""
 READ2=""
@@ -88,7 +91,7 @@ else
 
         mkdir -p ./output
 
-        module load FastQC/0.11.9-Java-11
+        # module load FastQC/0.11.9-Java-11
         fastqc $READ1 $READ2 -o ./output/
 
         echo "Ejecucion de fastqc finalizada en: $(date)"
@@ -100,7 +103,7 @@ else
 
     echo "Iniciando trinity en: $(date)"
 
-    module load Trinity
+    # module load Trinity
     ulimit unlimited
     Trinity --trimmomatic --seqType fq --left $READ1 --right $READ2 --max_memory 200G --CPU 40 --no_version_check
 
@@ -119,7 +122,7 @@ if [[ $BUSCO == true ]]; then
     cd ./busco
     BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
     echo "Iniciando busco en: $(date)"
-    module load BUSCO
+    # module load BUSCO
     busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
     echo "Ejecucion de busco finalizada en $(date)"
     cd ..
@@ -134,7 +137,7 @@ OUT=./blastx_out.csv
 
 echo "Iniciando blastx en $(date)"
 
-module load BLAST+/2.13.0-gompi-2022a
+# module load BLAST+/2.13.0-gompi-2022a
 blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
 
 echo "Ejecucion de blastx finalizada en $(date)"
@@ -149,7 +152,7 @@ cd ./alignments
 
 echo "Ejecución de alineamientos y mafft iniciada en: $(date)"
 
-module load R/4.3.0
+# module load R/4.3.0
 
 # R script paths
 R1=./RScripts/1-Find_extract_create.R
@@ -177,7 +180,7 @@ Rscript $R2 $BLAST_CSV $EXTRACTED $DB1 $ALINEAMIENTOS
 echo "R scripts finished"
 
 # Clean and MAFFT
-module load MAFFT
+# module load MAFFT
 
 mkdir -p ./Alineamientos_mafft
 
@@ -223,8 +226,8 @@ cd ./curation_filter
 
 echo "Ejecución de curation filter iniciada en: $(date)"
 
-module load Python/3.10.8-GCCcore-12.2.0
-module load Biopython/1.79-foss-2021a
+# module load Python/3.10.8-GCCcore-12.2.0
+# module load Biopython/1.79-foss-2021a
 
 
 # Python script path
@@ -282,7 +285,7 @@ echo "Ficheros fasta generados"
 
 # MAFFT
 cd ../mafft
-module load MAFFT
+# module load MAFFT
 
 for f in ./Alineamientos_pre_mafft/*.fasta
 do
@@ -353,7 +356,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP2 $CSV_ini/revision_manual.csv $FASTA_ini/revision_manual.fasta
 
     # Carga el módulo BLAST+ si es necesario
-    module load BLAST+/2.13.0-gompi-2022a
+    # module load BLAST+/2.13.0-gompi-2022a
 
     # Directorio de salida para los archivos CSV
     SIGNAL_OUT=./blast_signal_out
@@ -477,7 +480,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
     echo "Iniciando alineamientos mafft"
 
-    module load MAFFT
+    # module load MAFFT
 
     for f in ./alineamientos_NoSF/perfectos/preMafft/*.fasta
     do
@@ -546,7 +549,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
         # Llamar al script Python para procesar los CSVs y añadir el TPM
         module purge
-        module load Python/3.10.8-GCCcore-12.2.0
+        # module load Python/3.10.8-GCCcore-12.2.0
         python3 ./python_scripts/tpm.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
 
         echo "Proceso completado. CSVs actualizados en quantification/resultados"
