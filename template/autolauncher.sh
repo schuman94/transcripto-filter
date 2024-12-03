@@ -6,6 +6,8 @@
 #SBATCH --mem=200G
 #SBATCH --time=14-00:00
 
+# find . -type f -exec dos2unix {} \;
+
 # Cargar los módulos desde el archivo separado
 source ./load_modules.sh
 
@@ -137,8 +139,22 @@ OUT=./blastx_out.csv
 
 echo "Iniciando blastx en $(date)"
 
-# module load BLAST+/2.13.0-gompi-2022a
-blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 -outfmt 10 -out $OUT -num_threads 4
+module load BLAST+/2.13.0-gompi-2022a
+blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 \
+    -outfmt "10 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qframe" \
+    -out $OUT -num_threads 4
+
+echo "Modificando valores de la columna qframe..."
+awk -F',' 'BEGIN {OFS=","}
+{
+    if ($13 == "1") $13 = "Frame_F1";
+    else if ($13 == "2") $13 = "Frame_F2";
+    else if ($13 == "3") $13 = "Frame_F3";
+    else if ($13 == "-1") $13 = "Frame_R1";
+    else if ($13 == "-2") $13 = "Frame_R2";
+    else if ($13 == "-3") $13 = "Frame_R3";
+    print $0;
+}' $OUT > temp.csv && mv temp.csv $OUT
 
 echo "Ejecucion de blastx finalizada en $(date)"
 BLAST_CSV=$(realpath $OUT)
@@ -271,11 +287,11 @@ mkdir -p ./mafft
 mkdir -p ./mafft/Alineamientos_mafft
 mkdir -p ./mafft/Alineamientos_pre_mafft
 mkdir -p ./resultados
-mkdir -p ./resultados/Alineamientos_Limpios
 mkdir -p ./resultados/Alineamientos_M_Previa
 mkdir -p ./resultados/Alineamientos_Multiframe
 mkdir -p ./resultados/Alineamientos_Perfectos
 mkdir -p ./resultados/Alineamientos_Revision_Manual
+mkdir -p ./resultados/Alineamientos_Multiframe_Filtrados
 
 # Generar los ficheros fasta
 cd ./python_scripts
@@ -306,6 +322,9 @@ python3 filterM.py
 python3 summary.py
 
 echo "Ficheros clasificados"
+
+echo "Filtrando alineamientos multiframe"
+python3 ./filtrarMultiframe.py ../resultados/Alineamientos_Multiframe ../resultados/Alineamientos_Multiframe_Filtrados $BLAST_CSV
 
 echo "Paso extra: Recuperando descripción de alineamientos antiguos en Metionine Filter"
 
@@ -338,6 +357,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     PERFECTOS_DIR=../metionine_filter/resultados/Alineamientos_Perfectos
     MPREVIA_DIR=../metionine_filter/resultados/Alineamientos_M_Previa
     REVISION_DIR=../metionine_filter/resultados/Alineamientos_Revision_Manual
+    MULTIFRAME_DIR=../metionine_filter/resultados/Alineamientos_Multiframe_Filtrados
 
     echo "Construyendo csv de secuencias"
 
@@ -348,11 +368,13 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
     python3 $SFP1 $PERFECTOS_DIR $CSV_ini/perfectos.csv True
     python3 $SFP1 $MPREVIA_DIR $CSV_ini/mprevia.csv True
+    python3 $SFP1 $MULTIFRAME_DIR $CSV_ini/multiframe.csv False
     python3 $SFP1 $REVISION_DIR $CSV_ini/revision_manual.csv False
 
     echo "Construyendo fasta de secuencias"
     python3 $SFP2 $CSV_ini/perfectos.csv $FASTA_ini/perfectos.fasta
     python3 $SFP2 $CSV_ini/mprevia.csv $FASTA_ini/mprevia.fasta
+    python3 $SFP2 $CSV_ini/multiframe.csv $FASTA_ini/multiframe.fasta
     python3 $SFP2 $CSV_ini/revision_manual.csv $FASTA_ini/revision_manual.fasta
 
     # Carga el módulo BLAST+ si es necesario
@@ -381,6 +403,13 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         touch $SIGNAL_OUT/mprevia.csv
     fi
 
+    if [ -s $FASTA_ini/multiframe.fasta ]; then
+        blastp -query $FASTA_ini/multiframe.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/multiframe.csv -num_threads 4
+    else
+        echo "$FASTA_ini/multiframe.fasta está vacío. Creando archivo de salida vacío."
+        touch $SIGNAL_OUT/multiframe.csv
+    fi
+
     echo "Resultados guardados en $SIGNAL_OUT"
 
 
@@ -389,6 +418,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
     python3 $SFP3 $SIGNAL_OUT/perfectos.csv $CSV_ini/perfectos.csv $SIGNAL_OUT
     python3 $SFP3 $SIGNAL_OUT/mprevia.csv $CSV_ini/mprevia.csv $SIGNAL_OUT
+    python3 $SFP3 $SIGNAL_OUT/multiframe.csv $CSV_ini/multiframe.csv $SIGNAL_OUT
 
     echo "creando nuevos ficheros fasta para el segundo blast"
 
@@ -400,6 +430,9 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
     python3 $SFP4 $SIGNAL_OUT/mprevia_SF.csv $CSV_ini/mprevia.csv $FASTA_post
     python3 $SFP4 $SIGNAL_OUT/mprevia_NoSF.csv $CSV_ini/mprevia.csv $FASTA_post
+
+    python3 $SFP4 $SIGNAL_OUT/multiframe_SF.csv $CSV_ini/multiframe.csv $FASTA_post
+    python3 $SFP4 $SIGNAL_OUT/multiframe_NoSF.csv $CSV_ini/multiframe.csv $FASTA_post
 
     echo "nuevos ficheros fasta creados para el segundo blast"
 
@@ -438,6 +471,20 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         touch $BLAST_OUT/mprevia_NoSF.csv
     fi
 
+    if [ -s $FASTA_post/multiframe_SF.fasta ]; then
+        blastp -query $FASTA_post/multiframe_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/multiframe_SF.csv -num_threads 4
+    else
+        echo "$FASTA_post/multiframe_SF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/multiframe_SF.csv
+    fi
+
+    if [ -s $FASTA_post/multiframe_NoSF.fasta ]; then
+        blastp -query $FASTA_post/multiframe_NoSF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/multiframe_NoSF.csv -num_threads 4
+    else
+        echo "$FASTA_post/multiframe_NoSF.fasta está vacío. Creando archivo de salida vacío."
+        touch $BLAST_OUT/multiframe_NoSF.csv
+    fi
+
     if [ -s $FASTA_ini/revision_manual.fasta ]; then
         blastp -query $FASTA_ini/revision_manual.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/revision_manual.csv -num_threads 4
     else
@@ -457,8 +504,13 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP5 $BLAST_OUT/mprevia_SF.csv $SIGNAL_OUT/mprevia_SF.csv $DB3 $CSV_ini/mprevia.csv $RESULTADOS/mprevia_SF.csv
     python3 $SFP5 $BLAST_OUT/mprevia_NoSF.csv $SIGNAL_OUT/mprevia_NoSF.csv $DB3 $CSV_ini/mprevia.csv $RESULTADOS/mprevia_NoSF.csv
 
+    python3 $SFP5 $BLAST_OUT/multiframe_SF.csv $SIGNAL_OUT/multiframe_SF.csv $DB3 $CSV_ini/multiframe.csv $RESULTADOS/multiframe_SF.csv
+    python3 $SFP5 $BLAST_OUT/multiframe_NoSF.csv $SIGNAL_OUT/multiframe_NoSF.csv $DB3 $CSV_ini/multiframe.csv $RESULTADOS/multiframe_NoSF.csv
+
+
     python3 $SFP6 $RESULTADOS/perfectos_SF.csv $RESULTADOS/perfectos_NoSF.csv $CSV_ini/perfectos.csv $RESULTADOS/perfectos_noMatch.csv
     python3 $SFP6 $RESULTADOS/mprevia_SF.csv $RESULTADOS/mprevia_NoSF.csv $CSV_ini/mprevia.csv $RESULTADOS/mprevia_noMatch.csv
+    python3 $SFP6 $RESULTADOS/multiframe_SF.csv $RESULTADOS/multiframe_NoSF.csv $CSV_ini/multiframe.csv $RESULTADOS/multiframe_noMatch.csv
 
     echo "Resultados en csv obtenidos"
 
@@ -469,11 +521,14 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     mkdir -p alineamientos_NoSF/perfectos/mafft
     mkdir -p alineamientos_NoSF/mprevia/preMafft
     mkdir -p alineamientos_NoSF/mprevia/mafft
+    mkdir -p alineamientos_NoSF/multiframe/preMafft
+    mkdir -p alineamientos_NoSF/multiframe/mafft
     mkdir -p alineamientos_NoSF/revision_manual/preMafft
     mkdir -p alineamientos_NoSF/revision_manual/mafft
 
     python3 $SFP7 $BLAST_OUT/perfectos_NoSF.csv $CSV_ini/perfectos.csv $DB3 alineamientos_NoSF/perfectos/preMafft
     python3 $SFP7 $BLAST_OUT/mprevia_NoSF.csv $CSV_ini/mprevia.csv $DB3 alineamientos_NoSF/mprevia/preMafft
+    python3 $SFP7 $BLAST_OUT/multiframe_NoSF.csv $CSV_ini/multiframe.csv $DB3 alineamientos_NoSF/multiframe/preMafft
     python3 $SFP7 $BLAST_OUT/revision_manual.csv $CSV_ini/revision_manual.csv $DB3 alineamientos_NoSF/revision_manual/preMafft
 
     echo "Ficheros fasta creados creados"
@@ -495,6 +550,12 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         mafft --anysymbol $f > "./alineamientos_NoSF/mprevia/mafft/${base%.fasta}".mafft.fasta
     done
 
+    for f in ./alineamientos_NoSF/multiframe/preMafft/*.fasta
+    do
+        base=$(basename $f)
+        mafft --anysymbol $f > "./alineamientos_NoSF/multiframe/mafft/${base%.fasta}".mafft.fasta
+    done
+
     for f in ./alineamientos_NoSF/revision_manual/preMafft/*.fasta
     do
         base=$(basename $f)
@@ -513,6 +574,10 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         awk 'BEGIN{p=0} /^>/ {if(p){printf("\n%s\n",$0);next;}else{p=1;printf("%s\n",$0);next;}} {printf("%s",$0);} END{printf("\n");}' $f > temp && mv temp $f
     done
 
+    for f in ./alineamientos_NoSF/multiframe/mafft/*.fasta
+    do
+        awk 'BEGIN{p=0} /^>/ {if(p){printf("\n%s\n",$0);next;}else{p=1;printf("%s\n",$0);next;}} {printf("%s",$0);} END{printf("\n");}' $f > temp && mv temp $f
+    done
 
     for f in ./alineamientos_NoSF/revision_manual/mafft/*.fasta
     do

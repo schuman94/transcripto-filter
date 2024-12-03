@@ -14,8 +14,10 @@ def extract_sequences_to_csv(directory_path, output_csv_path, inicio_metionina=F
     """
     rows = []  # Lista para almacenar las filas que luego serán ordenadas y escritas en el CSV
 
+    print('Analizando ' + directory_path)
     for filename in os.listdir(directory_path):
         if filename.endswith(".mafft.fasta"):
+            print('Procesando: ' + filename)
             number = int(filename.split('_')[1].split('.')[0])  # Convertir el número a entero para el ordenamiento
             filepath = os.path.join(directory_path, filename)
 
@@ -29,6 +31,7 @@ def extract_sequences_to_csv(directory_path, output_csv_path, inicio_metionina=F
                         else:
                             print(f"Advertencia: No se encontró 'M' en la secuencia de {filename}.")
                     rows.append([number, record.id, sequence])  # Añadir fila a la lista
+                    print(f'Añadiendo seq {number} al csv')
                     break  # Solo procesar la primera secuencia
 
     # Ordenar las filas por el número (primera columna) en orden ascendente
