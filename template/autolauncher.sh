@@ -8,6 +8,8 @@
 
 # find . -type f -exec dos2unix {} \;
 
+echo "$(date): Ejecución de Transcripto-filter iniciada"
+
 # Cargar los módulos desde el archivo separado
 source ./load_modules.sh
 
@@ -89,27 +91,27 @@ else
     if [[ $FASTQC == true ]]; then
         cd ./fastqc
 
-        echo "Iniciando el fastqc en: $(date)"
+        echo "$(date): Iniciando fastqc"
 
         mkdir -p ./output
 
         # module load FastQC/0.11.9-Java-11
         fastqc $READ1 $READ2 -o ./output/
 
-        echo "Ejecucion de fastqc finalizada en: $(date)"
+        echo "$(date): Ejecucion de fastqc finalizada"
         cd ..
     fi
 
     # TRINITY
     cd ./trinity
 
-    echo "Iniciando trinity en: $(date)"
+    echo "$(date): Iniciando Trinity"
 
     # module load Trinity
     ulimit unlimited
     Trinity --trimmomatic --seqType fq --left $READ1 --right $READ2 --max_memory 200G --CPU 40 --no_version_check
 
-    echo "Ejecucion de trinity finalizada en: $(date)"
+    echo "$(date): Ejecucion de Trinity finalizada"
 
     TRINITY_FASTA=./trinity_out_dir.Trinity.fasta
     TRINITY_FASTA=$(realpath $TRINITY_FASTA)
@@ -123,10 +125,10 @@ fi
 if [[ $BUSCO == true ]]; then
     cd ./busco
     BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
-    echo "Iniciando busco en: $(date)"
+    echo "$(date): Iniciando Busco"
     # module load BUSCO
     busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
-    echo "Ejecucion de busco finalizada en $(date)"
+    echo "$(date): Ejecucion de Busco finalizada"
     cd ..
     sleep 5
 fi
@@ -137,7 +139,7 @@ cd ./blastx
 # Nombre del fichero de salida en formato csv
 OUT=./blastx_out.csv
 
-echo "Iniciando blastx en $(date)"
+echo "$(date): Iniciando blastx"
 
 module load BLAST+/2.13.0-gompi-2022a
 blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 \
@@ -156,7 +158,7 @@ awk -F',' 'BEGIN {OFS=","}
     print $0;
 }' $OUT > temp.csv && mv temp.csv $OUT
 
-echo "Ejecucion de blastx finalizada en $(date)"
+echo "$(date): Ejecucion de blastx finalizada"
 BLAST_CSV=$(realpath $OUT)
 cd ..
 
@@ -166,7 +168,7 @@ sleep 5
 # ALIGNMENTS
 cd ./alignments
 
-echo "Ejecución de alineamientos y mafft iniciada en: $(date)"
+echo "$(date): Ejecución de alineamientos y mafft iniciada"
 
 # module load R/4.3.0
 
@@ -179,7 +181,7 @@ EXTRACTED=./extracted_sequences.fasta
 NO_HIT=./no_hit_sequences.fasta
 
 # Ejecucion del script 1
-echo "Executing the first R script: find_extract_create"
+echo "$(date): Executing the first R script: find_extract_create"
 Rscript $R1 $BLAST_CSV $TRINITY_FASTA $EXTRACTED $NO_HIT
 
 sleep 5
@@ -190,10 +192,10 @@ ALINEAMIENTOS=Alineamientos
 mkdir -p $ALINEAMIENTOS
 
 # Ejecucion del script 2
-echo "Executing the second R script: create_sequences_groups"
+echo "$(date): Executing the second R script: create_sequences_groups"
 Rscript $R2 $BLAST_CSV $EXTRACTED $DB1 $ALINEAMIENTOS
 
-echo "R scripts finished"
+echo "$(date): R scripts finished"
 
 # Clean and MAFFT
 # module load MAFFT
@@ -229,8 +231,8 @@ do
     awk 'BEGIN{p=0} /^>/ {if(p){printf("\n%s\n",$0);next;}else{p=1;printf("%s\n",$0);next;}} {printf("%s",$0);} END{printf("\n");}' $f > temp && mv temp $f
 done
 
-echo "Clean and MAFFT finished"
-echo "Ejecución de alineamientos y mafft finalizada en: $(date)"
+echo "$(date): Clean and MAFFT finished"
+echo "$(date): Ejecución de alineamientos y mafft finalizada)"
 
 cd ..
 
@@ -240,7 +242,7 @@ sleep 5
 # CURATION FILTER
 cd ./curation_filter
 
-echo "Ejecución de curation filter iniciada en: $(date)"
+echo "$(date): Ejecución de curation filter iniciada en: $(date)"
 
 # module load Python/3.10.8-GCCcore-12.2.0
 # module load Biopython/1.79-foss-2021a
@@ -270,7 +272,7 @@ for file in $ALIGNMENTS_DIR/*.mafft.fasta; do
     fi
 done
 
-echo "Ejecución de curation filter finalizada en: $(date)"
+echo "$(date): Ejecución de curation filter finalizada"
 
 cd ..
 
@@ -280,7 +282,7 @@ sleep 5
 # METIONINE FILTER
 cd ./metionine_filter
 
-echo "Ejecución de metionine filter iniciada en: $(date)"
+echo "$(date): Ejecución de metionine filter iniciada"
 
 # Creacion de directorios
 mkdir -p ./mafft
@@ -297,7 +299,7 @@ mkdir -p ./resultados/Alineamientos_Multiframe_Filtrados
 cd ./python_scripts
 python3 generarFastas.py
 
-echo "Ficheros fasta generados"
+echo "$(date): Ficheros fasta generados"
 
 # MAFFT
 cd ../mafft
@@ -315,18 +317,18 @@ do
     awk 'BEGIN{p=0} /^>/ {if(p){printf("\n%s\n",$0);next;}else{p=1;printf("%s\n",$0);next;}} {printf("%s",$0);} END{printf("\n");}' $f > temp && mv temp $f
 done
 
-echo "MAFFT finished"
+echo "$(date): MAFFT finished"
 
 cd ../python_scripts
 python3 filterM.py
 python3 summary.py
 
-echo "Ficheros clasificados"
+echo "$(date): Ficheros clasificados"
 
-echo "Filtrando alineamientos multiframe"
+echo "$(date): Filtrando alineamientos multiframe"
 python3 ./filtrarMultiframe.py ../resultados/Alineamientos_Multiframe ../resultados/Alineamientos_Multiframe_Filtrados $BLAST_CSV
 
-echo "Paso extra: Recuperando descripción de alineamientos antiguos en Metionine Filter"
+echo "$(date): Paso extra: Recuperando descripción de alineamientos antiguos en Metionine Filter"
 
 PDESCRIPTION=../../superfamily/python_scripts/description.py
 
@@ -341,7 +343,7 @@ cd ../../
 # Antes de ejecutar la sección de SF filter, verifica si DB2 y DB3 están configuradas
 if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
-    echo "Ejecución de SF filter iniciada"
+    echo "$(date): Ejecución de SF filter iniciada"
     cd ./superfamily
 
     # Python script path
@@ -359,7 +361,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     REVISION_DIR=../metionine_filter/resultados/Alineamientos_Revision_Manual
     MULTIFRAME_DIR=../metionine_filter/resultados/Alineamientos_Multiframe_Filtrados
 
-    echo "Construyendo csv de secuencias"
+    echo "$(date): Construyendo csv de secuencias"
 
     CSV_ini=./csv_n-id-seq
     FASTA_ini=./fasta-preBlast_signal
@@ -371,7 +373,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP1 $MULTIFRAME_DIR $CSV_ini/multiframe.csv False
     python3 $SFP1 $REVISION_DIR $CSV_ini/revision_manual.csv False
 
-    echo "Construyendo fasta de secuencias"
+    echo "$(date): Construyendo fasta de secuencias"
     python3 $SFP2 $CSV_ini/perfectos.csv $FASTA_ini/perfectos.fasta
     python3 $SFP2 $CSV_ini/mprevia.csv $FASTA_ini/mprevia.fasta
     python3 $SFP2 $CSV_ini/multiframe.csv $FASTA_ini/multiframe.fasta
@@ -388,7 +390,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
 
 
     # Ejecuta el primer blastp
-    echo "iniciando primer blastp"
+    echo "$(date): iniciando primer blastp"
     if [ -s $FASTA_ini/perfectos.fasta ]; then
         blastp -query $FASTA_ini/perfectos.fasta -db $DB2 -evalue 1e-6 -outfmt 10 -out $SIGNAL_OUT/perfectos.csv -num_threads 4
     else
@@ -410,17 +412,17 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         touch $SIGNAL_OUT/multiframe.csv
     fi
 
-    echo "Resultados guardados en $SIGNAL_OUT"
+    echo "$(date): Resultados guardados en $SIGNAL_OUT"
 
 
     # Procesar resultado blast
-    echo "procesando resultados de blast"
+    echo "$(date): procesando resultados de blast"
 
     python3 $SFP3 $SIGNAL_OUT/perfectos.csv $CSV_ini/perfectos.csv $SIGNAL_OUT
     python3 $SFP3 $SIGNAL_OUT/mprevia.csv $CSV_ini/mprevia.csv $SIGNAL_OUT
     python3 $SFP3 $SIGNAL_OUT/multiframe.csv $CSV_ini/multiframe.csv $SIGNAL_OUT
 
-    echo "creando nuevos ficheros fasta para el segundo blast"
+    echo "$(date): creando nuevos ficheros fasta para el segundo blast"
 
     FASTA_post=./fasta-postBlast_signal
     mkdir -p $FASTA_post
@@ -434,14 +436,14 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP4 $SIGNAL_OUT/multiframe_SF.csv $CSV_ini/multiframe.csv $FASTA_post
     python3 $SFP4 $SIGNAL_OUT/multiframe_NoSF.csv $CSV_ini/multiframe.csv $FASTA_post
 
-    echo "nuevos ficheros fasta creados para el segundo blast"
+    echo "$(date): nuevos ficheros fasta creados para el segundo blast"
 
     BLAST_OUT=./blast_out
     mkdir -p $BLAST_OUT
 
 
     # Ejecuta segundo blastp
-    echo "iniciando segundo blastp"
+    echo "$(date): iniciando segundo blastp"
     # Verificar y ejecutar blastp solo si el archivo no está vacío
     if [ -s $FASTA_post/perfectos_SF.fasta ]; then
         blastp -query $FASTA_post/perfectos_SF.fasta -db $DB3 -evalue 1e-6 -outfmt 10 -out $BLAST_OUT/perfectos_SF.csv -num_threads 4
@@ -492,7 +494,7 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         touch $BLAST_OUT/revision_manual.csv
     fi
 
-    echo "Todos los blast han finalizado, iniciando procesamiento de los resultados"
+    echo "$(date): Todos los blast han finalizado, iniciando procesamiento de los resultados"
 
 
     RESULTADOS=./resultados
@@ -512,9 +514,9 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP6 $RESULTADOS/mprevia_SF.csv $RESULTADOS/mprevia_NoSF.csv $CSV_ini/mprevia.csv $RESULTADOS/mprevia_noMatch.csv
     python3 $SFP6 $RESULTADOS/multiframe_SF.csv $RESULTADOS/multiframe_NoSF.csv $CSV_ini/multiframe.csv $RESULTADOS/multiframe_noMatch.csv
 
-    echo "Resultados en csv obtenidos"
+    echo "$(date): Resultados en csv obtenidos"
 
-    echo "Iniciando la construccion de ficheros fasta de las secuencias NoSF"
+    echo "$(date): Iniciando la construccion de ficheros fasta de las secuencias NoSF"
 
 
     mkdir -p alineamientos_NoSF/perfectos/preMafft
@@ -531,9 +533,9 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP7 $BLAST_OUT/multiframe_NoSF.csv $CSV_ini/multiframe.csv $DB3 alineamientos_NoSF/multiframe/preMafft
     python3 $SFP7 $BLAST_OUT/revision_manual.csv $CSV_ini/revision_manual.csv $DB3 alineamientos_NoSF/revision_manual/preMafft
 
-    echo "Ficheros fasta creados creados"
+    echo "$(date): Ficheros fasta creados creados"
 
-    echo "Iniciando alineamientos mafft"
+    echo "$(date): Iniciando alineamientos mafft"
 
     # module load MAFFT
 
@@ -584,21 +586,52 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
         awk 'BEGIN{p=0} /^>/ {if(p){printf("\n%s\n",$0);next;}else{p=1;printf("%s\n",$0);next;}} {printf("%s",$0);} END{printf("\n");}' $f > temp && mv temp $f
     done
 
-    echo "MAFFT finished"
+    echo "$(date): MAFFT finished"
 
     python3 $SFP8 $BLAST_OUT/revision_manual.csv $CSV_ini/revision_manual.csv $RESULTADOS/revision_manual_Match.csv $RESULTADOS/revision_manual_NoMatch.csv
 
 
-    echo "Todos los ficheros csv movidos a $RESULTADOS"
+    echo "$(date): Todos los ficheros csv movidos a $RESULTADOS"
     echo "Alineamientos disponibles en alineamientos_NoSF"
 
-    cd ..
+    # BUSCANDO ALINEAMIENTOS PARA LOS NO MATCH
+    echo "$(date): Buscando alineamientos para los NoMATCH y Revision Manual MATCH en metionine filter"
+    cd ./buscar_alineamientos_en_mfilter
+
+    # Configuración de rutas
+    FASTA_BASE_DIR="../../metionine_filter/resultados/" # Base de los subdirectorios de FASTA
+    OUTPUT_DIR="./output/" # Directorio de salida
+    PYTHON_SCRIPT="buscar_alineamientos.py" # Ruta al script Python
+    MAX_SEQUENCES=8 # Número máximo de secuencias
+
+    # Crear el directorio de salida si no existe
+    mkdir -p "$OUTPUT_DIR"
+
+    module load Python/3.10.8-GCCcore-12.2.0
+    module load Biopython/1.79-foss-2021a
+
+    # Procesar cada archivo CSV que contenga "Match.csv" en su nombre
+    for csv_file in ../resultados/*Match.csv; do
+        if [[ -f "$csv_file" ]]; then
+            echo "Procesando $csv_file..."
+            python3 "$PYTHON_SCRIPT" --csv "$csv_file" \
+                                    --fasta_base_dir "$FASTA_BASE_DIR" \
+                                    --output_dir "$OUTPUT_DIR" \
+                                    --max_sequences "$MAX_SEQUENCES"
+        fi
+    done
+
+    echo "$(date): Procesamiento completado. Resultados en $OUTPUT_DIR."
+
+    echo "$(date): Ejecución de SF filter finalizada"
+
+    cd ../..
 
     # QUANTIFICATION
     # Antes de ejecutar la sección de quantification, verifica si READ1 y READ2 están configurados
     if [[ -n $READ1 ]] && [[ -n $READ2 ]]; then
 
-        echo "Ejecución de quantification iniciada"
+        echo "$(date): Ejecución de quantification iniciada"
         cd ./quantification
 
         QUANT_DIR="../trinity/trinity_out_dir/salmon_outdir"
@@ -610,14 +643,14 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
             echo "Directorio de resultados $RESULTS_DIR creado."
         fi
 
-        echo "Iniciando el procesamiento de CSVs con Python"
+        echo "$(date): Iniciando el procesamiento de CSVs con Python"
 
         # Llamar al script Python para procesar los CSVs y añadir el TPM
         module purge
         # module load Python/3.10.8-GCCcore-12.2.0
         python3 ./python_scripts/tpm.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
 
-        echo "Proceso completado. CSVs actualizados en quantification/resultados"
+        echo "$(date): Proceso completado. CSVs actualizados en quantification/resultados"
 
     else
         echo "Los READS no han sido proporcionados, no se puede realizar el cálculo de los niveles de expresión"
@@ -627,4 +660,4 @@ else
     echo "DB2 o DB3 no proporcionados, saltando la ejecución de SF filter y quantification."
 fi
 
-echo "Ejecución finalizada en: $(date)"
+echo "$(date): Ejecución de Transcripto-filter finalizada"
