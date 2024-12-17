@@ -10,16 +10,6 @@
 
 echo "$(date): Ejecución de Transcripto-filter iniciada"
 
-# Cargar todos los módulos necesarios
-module load FastQC/0.11.9-Java-11
-module load Trinity
-module load BUSCO
-module load BLAST+/2.13.0-gompi-2022a
-module load R/4.3.0
-module load MAFFT/7.490-gompi-2021b-with-extensions
-module load Python/3.10.8-GCCcore-12.2.0
-module load Biopython/1.79-foss-2021a
-
 # Inicializar variables
 READ1=""
 READ2=""
@@ -102,7 +92,7 @@ else
 
         mkdir -p ./output
 
-        # module load FastQC/0.11.9-Java-11
+        module load FastQC/0.11.9-Java-11
         fastqc $READ1 $READ2 -o ./output/
 
         echo "$(date): Ejecucion de fastqc finalizada"
@@ -114,7 +104,7 @@ else
 
     echo "$(date): Iniciando Trinity"
 
-    # module load Trinity
+    module load Trinity
     ulimit unlimited
     Trinity --trimmomatic --seqType fq --left $READ1 --right $READ2 --max_memory 200G --CPU 40 --no_version_check
 
@@ -133,7 +123,8 @@ if [[ $BUSCO == true ]]; then
     cd ./busco
     BUSCO_DB=/LUSTRE/home/qin/u49047421/transcriptomica/data/BUSCO_DB/metazoa_odb10
     echo "$(date): Iniciando Busco"
-    # module load BUSCO
+
+    module load BUSCO
     busco --offline -m transcriptome -i $TRINITY_FASTA -o busco_output -c 10 -l $BUSCO_DB
     echo "$(date): Ejecucion de Busco finalizada"
     cd ..
@@ -148,7 +139,7 @@ OUT=./blastx_out.csv
 
 echo "$(date): Iniciando blastx"
 
-#module load BLAST+/2.13.0-gompi-2022a
+module load BLAST+/2.13.0-gompi-2022a
 blastx -query $TRINITY_FASTA -db $DB1 -evalue 1e-6 \
     -outfmt "10 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qframe" \
     -out $OUT -num_threads 4
@@ -177,7 +168,7 @@ cd ./alignments
 
 echo "$(date): Ejecución de alineamientos y mafft iniciada"
 
-# module load R/4.3.0
+module load R/4.3.0
 
 # R script paths
 R1=./RScripts/1-Find_extract_create.R
@@ -205,7 +196,7 @@ Rscript $R2 $BLAST_CSV $EXTRACTED $DB1 $ALINEAMIENTOS
 echo "$(date): R scripts finished"
 
 # Clean and MAFFT
-# module load MAFFT
+module load MAFFT/7.490-gompi-2021b-with-extensions
 
 mkdir -p ./Alineamientos_mafft
 
@@ -251,9 +242,8 @@ cd ./curation_filter
 
 echo "$(date): Ejecución de curation filter iniciada en: $(date)"
 
-# module load Python/3.10.8-GCCcore-12.2.0
-# module load Biopython/1.79-foss-2021a
-
+module load Python/3.10.8-GCCcore-12.2.0
+module load Biopython/1.79-foss-2021a
 
 # Python script path
 P1=./python_scripts/main.py
@@ -310,7 +300,8 @@ echo "$(date): Ficheros fasta generados"
 
 # MAFFT
 cd ../mafft
-# module load MAFFT
+
+# module load MAFFT/7.490-gompi-2021b-with-extensions
 
 for f in ./Alineamientos_pre_mafft/*.fasta
 do
