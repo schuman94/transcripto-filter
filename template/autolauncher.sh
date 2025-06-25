@@ -377,8 +377,8 @@ if [[ -n $DB2 ]] && [[ -n $DB3 ]]; then
     python3 $SFP2 $CSV_ini/multiframe.csv $FASTA_ini/multiframe.fasta
     python3 $SFP2 $CSV_ini/revision_manual.csv $FASTA_ini/revision_manual.fasta
 
-    # Carga el módulo BLAST+ si es necesario
-    # module load BLAST+/2.13.0-gompi-2022a
+    # Carga el módulo BLAST+ otra vez
+    module load BLAST+/2.13.0-gompi-2022a
 
     # Directorio de salida para los archivos CSV
     SIGNAL_OUT=./blast_signal_out
