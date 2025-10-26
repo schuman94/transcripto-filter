@@ -14,8 +14,8 @@ fi
 
 echo "Iniciando el procesamiento de CSVs con Python"
 
-# Llamar al script Python para procesar los CSVs y añadir el TPM
+# Llamar al script Python para procesar los CSVs y añadir TPM y NumReads
 module load Python/3.10.8-GCCcore-12.2.0
-python3 ./python_scripts/tpm.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
+python3 ./python_scripts/tpm-numreads.py --quant_file "$QUANT_DIR/quant.sf" --results_dir "$RESULTS_DIR" --csv_dir "../superfamily/resultados"
 
 echo "Proceso completado. CSVs actualizados en la carpeta $RESULTS_DIR"

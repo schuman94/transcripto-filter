@@ -3,18 +3,19 @@ import pandas as pd
 import argparse
 
 # Argumentos del script
-parser = argparse.ArgumentParser(description="Añadir TPM a los CSVs")
+parser = argparse.ArgumentParser(description="Añadir TPM y NumReads a los CSVs")
 parser.add_argument('--quant_file', required=True, help="Ruta del archivo quant.sf")
 parser.add_argument('--results_dir', required=True, help="Carpeta donde se guardarán los CSV procesados")
 parser.add_argument('--csv_dir', required=True, help="Carpeta donde están los CSV originales")
 
 args = parser.parse_args()
 
-# Cargar los valores de TPM desde el archivo quant.sf
+# Cargar los valores de TPM y NumReads desde el archivo quant.sf
 tpm_data = pd.read_csv(args.quant_file, sep='\t')
 
-# Crear un diccionario que mapea los nombres de transcritos con los TPM
+# Crear diccionarios que mapean los nombres de transcritos con TPM y NumReads
 tpm_dict = dict(zip(tpm_data['Name'], tpm_data['TPM']))
+numreads_dict = dict(zip(tpm_data['Name'], tpm_data['NumReads']))
 
 # Función para extraer el ID de los transcritos antes del "_Frame"
 def extract_id(full_id):
@@ -32,13 +33,20 @@ for csv_file in os.listdir(args.csv_dir):
             print(f"Advertencia: El archivo {csv_file} no tiene una columna 'id'.")
             continue
 
-        # Extraer el valor TPM correspondiente para cada fila
+        # Extraer los valores TPM y NumReads correspondientes para cada fila
         df['tpm'] = df['id'].apply(lambda x: tpm_dict.get(extract_id(x), 0))
+        df['numreads'] = df['id'].apply(lambda x: numreads_dict.get(extract_id(x), 0))
 
-        # Reorganizar las columnas para que 'tpm' esté en la penúltima posición
+        # Reorganizar las columnas para que 'tpm' y 'numreads' queden justo antes de 'secuencia'
         cols = df.columns.tolist()
-        cols.insert(-1, cols.pop(cols.index('tpm')))
-        df = df[cols]
+        if 'secuencia' in cols:
+            dest = cols.index('secuencia')  # posición de 'secuencia'
+            # Inserta en orden: primero tpm, luego numreads, justo antes de 'secuencia'
+            for col in ['tpm', 'numreads']:
+                cols.insert(dest, cols.pop(cols.index(col)))
+                dest += 1  # avanzar porque hemos insertado antes de 'secuencia'
+            df = df[cols]
+
 
         # Guardar el CSV procesado en la carpeta de resultados
         result_csv_path = os.path.join(args.results_dir, csv_file)
